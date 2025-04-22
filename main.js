@@ -173,13 +173,16 @@ function renderChart (rangeData) {
 /* ---------- 4. 讀取並渲染詳細事件 ---------- */
 async function loadDetail (dateStr) {
   const section = document.querySelector('.details-section');
-  /* 清掉舊內容，只保留標題 */
   section.querySelectorAll('.detail-row').forEach(r => r.remove());
 
   try {
-    const res = await fetch(`${DETAIL_BASE_URL}${dateStr}.json`);
-    if (!res.ok) throw new Error('找不到詳細事件');
-    const detailArr = await res.json();
+    const res = await fetch('data/detail/detail_all.json');
+    if (!res.ok) throw new Error('讀取 detail_all 失敗');
+    const allDetail = await res.json();
+
+    // 篩選出指定日期
+    const detailArr = allDetail.filter(it => it['報告日期'] === dateStr);
+    if (detailArr.length === 0) throw new Error('當天無詳細事件');
 
     detailArr.forEach(item => {
       const row = document.createElement('div');
