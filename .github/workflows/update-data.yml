@@ -1,0 +1,34 @@
+name: Update data & deploy
+on:
+  push:
+    paths:
+      - "raw/**.csv"       # 只有 CSV 更新才跑
+  workflow_dispatch:
+
+permissions:
+  contents: write          # 讓 Actions 可以 commit 回 repo
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install pandas
+        run: pip install pandas
+
+      - name: Convert CSV → JSON
+        run: python convert.py
+
+      - name: Commit JSON
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/*.json data/detail/*.json
+          git commit -m "data: auto update $(date +'%Y-%m-%d')" || echo "No changes"
+          git push
