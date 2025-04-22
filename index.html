@@ -100,21 +100,25 @@
     </div>
   </div>
 
-  <!-- 七日趨勢圖 -->
-  <div class="trend-chart">
-    <h2 class="chart-title">過去 N 日趨勢</h2>
-    <div class="category-tabs">
-      <div class="category-tab active">全部</div>
-      <div class="category-tab">軍艦</div>
-      <div class="category-tab">軍機</div>
-      <div class="category-tab">公務船</div>
-      <div class="category-tab">氣球</div>
-    </div>
-    <div class="chart-container"><canvas id="trendChart"></canvas></div>
+<!-- 過去 N 日趨勢 -->
+<div class="trend-chart">
+  <h2 class="chart-title">過去 N 日趨勢</h2>
+
+  <!-- 分類 Tab -->
+  <div class="category-tabs">
+    <div class="category-tab active">全部</div>
+    <div class="category-tab">軍艦</div>
+    <div class="category-tab">軍機</div>
+    <div class="category-tab">公務船</div>
+    <div class="category-tab">氣球</div>
   </div>
 
+  <!-- Chart -->
+  <div class="chart-container">
+    <canvas id="trendChart"></canvas>
+  </div>
 
-  <!-- 數量圖例列 --> 
+  <!-- 數量圖例列 -->
   <div class="legend">
     <div class="legend-item">
       <span class="legend-dot" style="background:#ff3b30;"></span>軍艦
@@ -129,6 +133,7 @@
       <span class="legend-dot" style="background:#34c759;"></span>氣球
     </div>
   </div>
+</div> <!-- trend-chart 結束 -->
 
   
   <!-- 過去 N 日列表 -->
