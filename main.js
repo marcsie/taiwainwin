@@ -134,18 +134,31 @@ function renderChart (rangeData) {
     fill: true
   }));
 
-  if (!chartInstance) {
-    const ctx = document.getElementById('trendChart').getContext('2d');
-    chartInstance = new Chart(ctx, {
-      type: 'line',
-      data: { labels, datasets: conf },
-      options: {
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, stacked: true } },
-        responsive: true,
-        maintainAspectRatio: false
-      }
-    });
+   if (!chartInstance) {
+     const ctx = document.getElementById('trendChart').getContext('2d');
+     chartInstance = new Chart(ctx, {
+       type: 'line',
+       data: { labels, datasets: conf },
+       options: {
+         plugins: { legend: { display: false } },
+         scales: {
+           y: {
+             beginAtZero: true,
+             stacked: true,
+   
+             /* === 新增：Y 軸只顯示整數 === */
+             ticks: {
+               stepSize: 1,                              // 刻度間距固定 1
+               callback: v => Number.isInteger(v) ? v : '' // 非整數不顯示
+             }
+             /* ================================= */
+           }
+         },
+         responsive: true,
+         maintainAspectRatio: false
+       }
+     });
+
 
     /* 分類 Tab 互動（沿用原樣式） */
     document.querySelectorAll('.category-tab').forEach((tab, idx) => {
