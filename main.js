@@ -200,3 +200,4 @@ async function loadDetail (dateStr) {
     console.warn(err.message);
   }
 }
+
