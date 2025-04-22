@@ -1,16 +1,111 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <!-- … meta、title、Chart.js、CSS 全都維持原樣 … -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
- 
-</head>
-<body>
-  <!-- ⭐ 你的原始 HTML 元素全部保留，因為要綁定同一組 class/id ⭐ -->
-  <!-- …header、today‑summary、trend‑chart、weekly‑forecast、details‑section… -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>軍事動態資訊</title>
 
-  <!-- ❶ 把舊的 <script> 區塊整個刪掉 -->
-  <!-- ❷ 新增一行載入外部 JS -->
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
+  <!-- 基礎樣式（取自之前範例，稍作精簡） -->
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box;
+        font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+    body     { background:#000; color:#fff; padding:20px 16px; }
+    h1,h2    { font-weight:bold; }
+    .header  { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+    .title   { font-size:32px; }
+    .refresh { width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,.2);
+               display:flex; justify-content:center; align-items:center; }
+
+    .range-control { margin-bottom:16px; font-size:14px; }
+    .range-control input { width:60px; margin:0 4px; }
+
+    .today-summary,.trend-chart,.weekly-forecast,.details-section {
+      background:rgba(255,255,255,.08); border-radius:20px; padding:20px; margin-bottom:20px; }
+    .date      { font-size:16px; opacity:.8; margin-bottom:10px; }
+    .total-count{ font-size:48px; margin-bottom:16px; }
+    .summary-detail{ display:flex; justify-content:space-between; border-top:1px solid rgba(255,255,255,.2); padding-top:16px; }
+    .detail-item{ flex:1; text-align:center; }
+    .detail-item h3{ font-size:14px; opacity:.8; margin-bottom:6px; }
+    .detail-item p { font-size:20px; font-weight:bold; }
+
+    .category-tabs { display:flex; justify-content:space-between; margin-bottom:10px; }
+    .category-tab  { flex:1; text-align:center; padding:8px 0; background:rgba(255,255,255,.05);
+                     border-radius:8px; margin:0 2px; font-size:13px; cursor:pointer; }
+    .category-tab.active { background:rgba(255,255,255,.2); font-weight:bold; }
+
+    .chart-container{ position:relative; height:220px; width:100%; }
+
+    .weekly-forecast .day-row{ display:flex; justify-content:space-between; align-items:center;
+                               padding:12px 0; border-bottom:1px solid rgba(255,255,255,.1); }
+    .weekly-forecast .day-row:last-child{ border-bottom:none; }
+    .day-name{ flex:1; }
+    .day-icon{ flex:1; text-align:center; }
+    .day-count{ flex:1; text-align:right; font-weight:bold; }
+
+    .details-section .detail-row{ padding:10px 0; border-bottom:1px solid rgba(255,255,255,.1); }
+    .details-section .detail-row:last-child{ border-bottom:none; }
+    .detail-time{ font-size:14px; opacity:.7; margin-bottom:4px; }
+    .notification-dot{ display:inline-block; width:8px; height:8px;
+                       background:#ff3b30; border-radius:50%; margin-right:5px; }
+  </style>
+</head>
+
+<body>
+
+  <!-- 頁首 -->
+  <div class="header">
+    <h1 class="title">軍事動態</h1>
+    <div class="refresh">↻</div>
+  </div>
+
+  <!-- 顯示天數控制器 -->
+  <div class="range-control">
+    <label>顯示天數：</label>
+    <input id="daysInput" type="number" value="7" min="1" max="365" step="1" />
+    <button id="applyBtn">套用</button>
+  </div>
+
+  <!-- 今日摘要 -->
+  <div class="today-summary">
+    <div class="date">‑‑‑</div>
+    <div class="total-count">‑‑‑</div>
+    <div class="summary-detail">
+      <div class="detail-item"><h3>軍艦</h3><p>‑‑‑</p></div>
+      <div class="detail-item"><h3>軍機</h3><p>‑‑‑</p></div>
+      <div class="detail-item"><h3>公務船</h3><p>‑‑‑</p></div>
+      <div class="detail-item"><h3>氣球</h3><p>‑‑‑</p></div>
+    </div>
+  </div>
+
+  <!-- 七日趨勢圖 -->
+  <div class="trend-chart">
+    <h2 class="chart-title">過去 N 日趨勢</h2>
+    <div class="category-tabs">
+      <div class="category-tab active">全部</div>
+      <div class="category-tab">軍艦</div>
+      <div class="category-tab">軍機</div>
+      <div class="category-tab">公務船</div>
+      <div class="category-tab">氣球</div>
+    </div>
+    <div class="chart-container"><canvas id="trendChart"></canvas></div>
+  </div>
+
+  <!-- 過去 N 日列表 -->
+  <div class="weekly-forecast">
+    <h2 class="weekly-title">過去 N 日動態</h2>
+    <!-- dynamic rows will be injected here -->
+  </div>
+
+  <!-- 詳細動態 -->
+  <div class="details-section">
+    <h2 class="details-title">今日詳細動態</h2>
+    <!-- dynamic detail rows will be injected here -->
+  </div>
+
+  <!-- 載入外部 JS（main.js 必須在 body 最後） -->
   <script type="module" src="main.js"></script>
 </body>
 </html>
