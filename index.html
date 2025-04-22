@@ -50,6 +50,26 @@
     .detail-time{ font-size:14px; opacity:.7; margin-bottom:4px; }
     .notification-dot{ display:inline-block; width:8px; height:8px;
                        background:#ff3b30; border-radius:50%; margin-right:5px; }
+
+    /* 圖例列樣式 -------------------------------------------------- */
+.legend{
+  display:flex;
+  justify-content:space-around;   /* 左右留白平均，可改 space-between */
+  margin-top:10px;
+  font-size:13px;
+}
+.legend-item{
+  display:flex;
+  align-items:center;
+}
+.legend-dot{
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  margin-right:4px;
+}
+/* ----------------------------------------------------------- */
+
   </style>
 </head>
 
@@ -93,6 +113,24 @@
     <div class="chart-container"><canvas id="trendChart"></canvas></div>
   </div>
 
+
+  <!-- 數量圖例列 --> 
+  <div class="legend">
+    <div class="legend-item">
+      <span class="legend-dot" style="background:#ff3b30;"></span>軍艦
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot" style="background:#1e90ff;"></span>軍機
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot" style="background:#ffcc00;"></span>公務船
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot" style="background:#34c759;"></span>氣球
+    </div>
+  </div>
+
+  
   <!-- 過去 N 日列表 -->
   <div class="weekly-forecast">
     <h2 class="weekly-title">過去 N 日數量</h2>
