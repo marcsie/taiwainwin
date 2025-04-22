@@ -29,10 +29,10 @@ json.dump(dict(sorted(summary.items())),
           OUT_SUMMARY.open('w', encoding='utf-8'),
           ensure_ascii=False, indent=2)
 
-# ---------- 2. 讀當日細節（保持不變） ----------
+# --- 2. 讀全部詳細事件，寫成單一檔 ---
 df_det = pd.read_csv(RAW_DIR / 'taiwanwin-daily-detail-events.csv')
 if not df_det.empty:
-    day = str(df_det.iloc[0]['報告日期'])
     OUT_DETAIL.mkdir(parents=True, exist_ok=True)
-    df_det.to_json(OUT_DETAIL / f'{day}.json',
-                   orient='records', force_ascii=False, indent=2)
+    out_path = OUT_DETAIL / 'detail_all.json'
+    # 建議只保留你需要的欄位
+    df_det.to_json(out_path, orient='records', force_ascii=False, indent=2)
