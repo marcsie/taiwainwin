@@ -138,8 +138,16 @@ function initTrendChart(index, canvasId, rangeData) {
   const block = document.querySelectorAll('.trend-chart')[index];
   if (!block) return;
 
-  const labels = rangeData.map(d => d.date.slice(5).replace('-', '/'));
-  const confs  = [
+  // ◀── 這裡替換 labels 的計算 ──▶
+  const labels = rangeData.map(d => {
+    const dt = new Date(d.date);
+    dt.setDate(dt.getDate() - 1);  // 公告日前一天
+    const mm = String(dt.getMonth() + 1).padStart(2, '0');
+    const dd = String(dt.getDate()).padStart(2, '0');
+    return `${mm}/${dd}`;
+  });
+
+  const confs = [
     { lbl:'軍艦',  key:'共艦數量',   border:'#ff3b30', bg:'rgba(255,59,48,0.6)' },
     { lbl:'軍機',  key:'共機數量',   border:'#1e90ff', bg:'rgba(30,144,255,0.6)' },
     { lbl:'公務船',key:'公務船數量', border:'#ffcc00', bg:'rgba(255,204,0,0.6)' },
@@ -176,7 +184,6 @@ function initTrendChart(index, canvasId, rangeData) {
       maintainAspectRatio: false
     }
   });
-
   // 綁定分類 Tab
   block.querySelectorAll('.category-tab').forEach((tab, tabIdx) => {
     tab.addEventListener('click', () => {
@@ -198,7 +205,7 @@ function initTrendChart(index, canvasId, rangeData) {
   if (tabs[0]) tabs[0].click();
 }
 
-  // ---------- 5. 近 7 日總架次數量列表 ----------
+  // ---------- 5. 近 7 日總架次數量列表（公告前一天日期） ----------
   function renderTotalList7Days(rangeData) {
     const wrap = document.getElementById('totalList7');
     if (!wrap) return;
@@ -206,23 +213,28 @@ function initTrendChart(index, canvasId, rangeData) {
     // 清除舊內容
     wrap.querySelectorAll('.day-row').forEach(r => r.remove());
   
-    // 倒序：最新日期在最上面
+    // 倒序：最新公告在最上面
     rangeData.slice().reverse().forEach(d => {
-      const row = document.createElement('div');
-      row.className = 'day-row';
+      // 先把公告日期字串轉 Date，再減一天
+      const dt = new Date(d.date);
+      dt.setDate(dt.getDate() - 1);
+      const mm = String(dt.getMonth() + 1).padStart(2, '0');
+      const dd = String(dt.getDate()).padStart(2, '0');
+      const name = `${mm}/${dd}`;
   
-      // 只顯示 MM/DD
-      const name = d.date.slice(5).replace('-', '/');
-  
+      // 計算總架次
       const total = d['共機數量']
                   + d['共艦數量']
                   + d['公務船數量']
                   + d['氣球數量'];
   
+      // 建立一行
+      const row = document.createElement('div');
+      row.className = 'day-row';
       row.innerHTML = `
         <div class="day-name">${name}</div>
         <div class="day-icon">⚠️</div>
         <div class="day-count">${total}</div>`;
       wrap.appendChild(row);
     });
-  }
+}
