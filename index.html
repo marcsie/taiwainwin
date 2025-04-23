@@ -81,6 +81,30 @@
   margin-left: 6px;
   font-size: 13px;
 }
+
+  /* labels & 列表共用三欄 flex 版型 */
+  .weekly-forecast .list-labels,
+  .weekly-forecast .day-row {
+    display: flex;
+    align-items: center;
+    padding: 4px 0;
+  }
+  
+  /* 三欄平均寬度 */
+  .weekly-forecast .list-labels > div,
+  .weekly-forecast .day-row > div {
+    flex: 1;
+  }
+  
+  /* 文字對齊 */
+  .weekly-forecast .day-name { text-align: left; }
+  .weekly-forecast .day-count { text-align: center; }
+  .weekly-forecast .day-delta { text-align: right; }
+  
+  /* 欄位名稱粗體 */
+  .weekly-forecast .list-labels > div {
+    font-weight: bold;
+  }
     
   </style>
 </head>
