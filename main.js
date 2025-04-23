@@ -1,8 +1,8 @@
 // main.js
-const SUMMARY_URL      = 'data/summary.json';
-const DETAIL_ALL_URL   = 'data/detail/detail_all.json';
-let summaryDataObj     = {};
-let daysToShow         = 7;
+const SUMMARY_URL    = 'data/summary.json';
+const DETAIL_ALL_URL = 'data/detail/detail_all.json';
+let summaryDataObj   = {};
+let daysToShow       = 7;
 
 // 啟動流程
 document.addEventListener('DOMContentLoaded', async () => {
@@ -32,7 +32,7 @@ function bindRangeControl() {
 // 一次渲染所有區塊
 function renderAll() {
   const allDates = Object.keys(summaryDataObj).sort();
-  
+
   // 1. 今日摘要 + 清單 + 詳細
   const rangeData = allDates.slice(-daysToShow)
     .map(d => ({ date: d, ...summaryDataObj[d] }));
@@ -40,20 +40,26 @@ function renderAll() {
   renderWeekList(rangeData);
   loadDetail(rangeData.at(-1).date);
 
-  // 2. 過去 7 日 & 30 日 趨勢圖
-  const last7  = allDates.slice(-7).map(d => ({ date: d, ...summaryDataObj[d] }));
+  // 2. 過去 7 日 趨勢圖 + 總列表
+  const last7 = allDates.slice(-7).map(d => ({ date: d, ...summaryDataObj[d] }));
+  initTrendChart(0, 'trendChart7', last7);
+  renderTotalList7Days(last7);
+
+  // 3. 過去 30 日 趨勢圖
   const last30 = allDates.slice(-30).map(d => ({ date: d, ...summaryDataObj[d] }));
-  initTrendChart(0, 'trendChart7',  last7);   // 第 1 個 .trend-chart
-  initTrendChart(1, 'trendChart30', last30);  // 第 2 個 .trend-chart
+  initTrendChart(1, 'trendChart30', last30);
 }
 
 // ---------- 1. 今日摘要 ----------
 function renderTodaySummary(today) {
-  document.querySelector('.today-title').textContent       = '最新報告時間';
-  document.querySelector('.report-interval').textContent   = today['報告時間區間'];
-  const total = today['共機數量'] + today['共艦數量']
-              + today['公務船數量'] + today['氣球數量'];
-  document.querySelector('.total-count').textContent       = '總架次 ' + total;
+  document.querySelector('.today-title').textContent     = '最新報告時間';
+  document.querySelector('.report-interval').textContent = today['報告時間區間'];
+
+  const total = today['共機數量']
+              + today['共艦數量']
+              + today['公務船數量']
+              + today['氣球數量'];
+  document.querySelector('.total-count').textContent     = '總架次 ' + total;
 
   const nums = [
     today['共艦數量'],
@@ -85,9 +91,11 @@ function renderWeekList(rangeData) {
     row.className = 'day-row';
     const name = idx === 0 ? '今天'
                : idx === 1 ? '昨日'
-               : `${d.date.slice(5).replace('-', '/')}日`;
-    const total = d['共機數量'] + d['共艦數量']
-                + d['公務船數量'] + d['氣球數量'];
+               : d.date.slice(5).replace('-', '/');
+    const total = d['共機數量']
+                + d['共艦數量']
+                + d['公務船數量']
+                + d['氣球數量'];
     row.innerHTML = `
       <div class="day-name">${name}</div>
       <div class="day-icon">⚠️</div>
@@ -127,43 +135,40 @@ async function loadDetail(dateStr) {
 
 // ---------- 4. 通用趨勢圖函式 ----------
 function initTrendChart(index, canvasId, rangeData) {
-  // 取對應的 .trend-chart 區塊
   const block = document.querySelectorAll('.trend-chart')[index];
   if (!block) return;
 
-  // 準備 Chart.js 資料
   const labels = rangeData.map(d => d.date.slice(5).replace('-', '/'));
-  const confs = [
-    { lbl:'軍艦',  key:'共艦數量',    border:'#ff3b30', bg:'rgba(255,59,48,0.6)' },
-    { lbl:'軍機',  key:'共機數量',    border:'#1e90ff', bg:'rgba(30,144,255,0.6)' },
-    { lbl:'公務船',key:'公務船數量',  border:'#ffcc00', bg:'rgba(255,204,0,0.6)' },
-    { lbl:'氣球',  key:'氣球數量',    border:'#34c759', bg:'rgba(52,199,89,0.6)' }
+  const confs  = [
+    { lbl:'軍艦',  key:'共艦數量',   border:'#ff3b30', bg:'rgba(255,59,48,0.6)' },
+    { lbl:'軍機',  key:'共機數量',   border:'#1e90ff', bg:'rgba(30,144,255,0.6)' },
+    { lbl:'公務船',key:'公務船數量', border:'#ffcc00', bg:'rgba(255,204,0,0.6)' },
+    { lbl:'氣球',  key:'氣球數量',   border:'#34c759', bg:'rgba(52,199,89,0.6)' }
   ];
-  const datasets = confs.map(c => ({
+  const datasets = confs.map((c, i) => ({
     label: c.lbl,
-    data: rangeData.map(d => d[c.key]),
+    data:  rangeData.map(d => d[c.key]),
     borderColor: c.border,
     backgroundColor: c.bg,
     tension: 0.4,
-    pointRadius: index === 1 ? 0 : 2,  // 若是第 2 個 chart (30 日)，就不顯示圓點
+    pointRadius: index === 1 ? 0 : 2,
     borderWidth: 2,
     fill: true
   }));
 
-  // 建立 Chart
   const ctx = document.getElementById(canvasId).getContext('2d');
   const chart = new Chart(ctx, {
     type: 'line',
     data: { labels, datasets },
     options: {
-      plugins: { legend: { display: false } },
+      plugins: { legend:{ display:false } },
       scales: {
         y: {
           beginAtZero: true,
           stacked: true,
           ticks: {
             stepSize: 1,
-            callback: v => Number.isInteger(v) ? v : ''
+            callback: v => Number.isInteger(v)? v : ''
           }
         }
       },
@@ -172,12 +177,11 @@ function initTrendChart(index, canvasId, rangeData) {
     }
   });
 
-  // 綁定本區塊的分類 Tab
+  // 綁定分類 Tab
   block.querySelectorAll('.category-tab').forEach((tab, tabIdx) => {
     tab.addEventListener('click', () => {
       block.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
-
       if (tabIdx === 0) {
         chart.data.datasets.forEach(ds => ds.hidden = false);
         chart.options.scales.y.stacked = true;
@@ -189,7 +193,33 @@ function initTrendChart(index, canvasId, rangeData) {
     });
   });
 
-  // 自動觸發「全部」的初始狀態
+  // 初始觸發「全部」
   const tabs = block.querySelectorAll('.category-tab');
   if (tabs[0]) tabs[0].click();
+}
+
+// ---------- 5. 過去 7 日總架次列表 ----------
+function renderTotalList7Days(rangeData) {
+  const wrap = document.getElementById('totalList7');
+  if (!wrap) return;
+
+  wrap.querySelectorAll('.day-row').forEach(r => r.remove());
+  rangeData.slice().reverse().forEach((d, idx) => {
+    const row = document.createElement('div');
+    row.className = 'day-row';
+
+    const name = idx === 0 ? '今天'
+               : idx === 1 ? '昨日'
+               : d.date.slice(5).replace('-', '/');
+    const total = d['共機數量']
+                + d['共艦數量']
+                + d['公務船數量']
+                + d['氣球數量'];
+
+    row.innerHTML = `
+      <div class="day-name">${name}</div>
+      <div class="day-icon">⚠️</div>
+      <div class="day-count">${total}</div>`;
+    wrap.appendChild(row);
+  });
 }
