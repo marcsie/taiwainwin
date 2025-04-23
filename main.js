@@ -1,8 +1,8 @@
 // main.js
-const SUMMARY_URL      = 'data/summary.json';
-const DETAIL_ALL_URL   = 'data/detail/detail_all.json';
-let summaryDataObj     = {};
-let daysToShow         = 7;
+const SUMMARY_URL    = 'data/summary.json';
+const DETAIL_ALL_URL = 'data/detail/detail_all.json';
+let summaryDataObj   = {};
+const daysToShow     = 7;
 
 // 啟動流程
 document.addEventListener('DOMContentLoaded', async () => {
@@ -22,8 +22,7 @@ function renderAll() {
   const allDates = Object.keys(summaryDataObj).sort();
 
   // 1. 今日摘要 + 清單 + 詳細
-  const rangeData = allDates.slice(-daysToShow)
-    .map(d => ({ date: d, ...summaryDataObj[d] }));
+  const rangeData = allDates.slice(-daysToShow).map(d => ({ date: d, ...summaryDataObj[d] }));
   renderTodaySummary(rangeData.at(-1));
   renderWeekList(rangeData);
   loadDetail(rangeData.at(-1).date);
@@ -95,11 +94,13 @@ function renderWeekList(rangeData) {
 // ---------- 3. 詳細動態載入 ----------
 async function loadDetail(dateStr) {
   const section = document.querySelector('.details-section');
+  // 清除舊內容
   section.querySelectorAll('.detail-row').forEach(r => r.remove());
 
-  // 新增：同步填入報告時間區間
-  const intervalEl = section.querySelector('.details-interval');
-  intervalEl.textContent = summaryDataObj[dateStr]['報告時間區間'] || '';
+  // 更新標題與時間區間
+  section.querySelector('.details-title').textContent = '詳細動態';
+  section.querySelector('.details-interval').textContent =
+    summaryDataObj[dateStr]['報告時間區間'];
 
   try {
     const res = await fetch(DETAIL_ALL_URL);
@@ -117,9 +118,7 @@ async function loadDetail(dateStr) {
         </div>`;
       section.appendChild(row);
     });
-    section.querySelector('.details-title').textContent = `詳細動態 (${dateStr})`;
   } catch (err) {
-    section.querySelector('.details-title').textContent = `詳細動態 (${dateStr})`;
     console.warn(err.message);
   }
 }
@@ -166,7 +165,7 @@ function initTrendChart(index, canvasId, rangeData) {
           stacked: true,
           ticks: {
             stepSize: 1,
-            callback: v => Number.isInteger(v)? v : ''
+            callback: v => Number.isInteger(v) ? v : ''
           }
         }
       },
@@ -194,10 +193,11 @@ function initTrendChart(index, canvasId, rangeData) {
   if (tabs[0]) tabs[0].click();
 }
 
-// ---------- 5. 近 7 日總架次列表 ----------
+// ---------- 5. 近 7 日總架次數量列表 ----------
 function renderTotalList7Days(rangeData) {
   const wrap = document.getElementById('totalList7');
   if (!wrap) return;
+
   wrap.querySelectorAll('.day-row').forEach(r => r.remove());
 
   const totals = rangeData.map(d =>
@@ -223,18 +223,15 @@ function renderTotalList7Days(rangeData) {
     row.innerHTML = `
       <div class="day-name">${name}</div>
       <div class="day-count">${total}</div>
-      <div class="day-delta">
-        ${
-          delta === null
-            ? '-' 
-            : delta > 0
+      <div class="day-delta">${
+        delta === null
+          ? '-'
+          : delta > 0
             ? `<span class="delta-up">+${delta}</span>`
             : delta < 0
-            ? `<span class="delta-down">${delta}</span>`
-            : '0'
-        }
-      </div>
-    `;
+              ? `<span class="delta-down">${delta}</span>`
+              : '0'
+      }</div>`;
     wrap.appendChild(row);
   });
 }
