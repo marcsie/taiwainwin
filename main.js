@@ -207,7 +207,7 @@ function initTrendChart(index, canvasId, rangeData) {
   if (tabs[0]) tabs[0].click();
 }
 
-  // ---------- 5. 近 7 日總架次數量列表（公告前一天日期） ----------
+  // ---------- 5. 近 7 日總架次數量列表（公告前一天日期 + 日增減） ----------
   function renderTotalList7Days(rangeData) {
     const wrap = document.getElementById('totalList7');
     if (!wrap) return;
@@ -215,28 +215,41 @@ function initTrendChart(index, canvasId, rangeData) {
     // 清除舊內容
     wrap.querySelectorAll('.day-row').forEach(r => r.remove());
   
-    // 倒序：最新公告在最上面
-    rangeData.slice().reverse().forEach(d => {
-      // 先把公告日期字串轉 Date，再減一天
+    // 先算出每一天的總架次
+    const totals = rangeData.map(d =>
+      d['共機數量'] + d['共艦數量'] + d['公務船數量'] + d['氣球數量']
+    );
+    // 計算與前一天的差值
+    const deltas = totals.map((t, i) => i === 0 ? 0 : t - totals[i - 1]);
+  
+    // 倒序顯示：最新公告在最上面
+    rangeData.slice().reverse().forEach((d, ridx) => {
+      const ascIdx = totals.length - 1 - ridx; // 反向後對應原始 index
+      const total = totals[ascIdx];
+      const delta = deltas[ascIdx];
+  
+      // 公告日前一天作為顯示日期
       const dt = new Date(d.date);
       dt.setDate(dt.getDate() - 1);
       const mm = String(dt.getMonth() + 1).padStart(2, '0');
       const dd = String(dt.getDate()).padStart(2, '0');
       const name = `${mm}/${dd}`;
   
-      // 計算總架次
-      const total = d['共機數量']
-                  + d['共艦數量']
-                  + d['公務船數量']
-                  + d['氣球數量'];
-  
-      // 建立一行
+      // 組建一行
       const row = document.createElement('div');
       row.className = 'day-row';
       row.innerHTML = `
         <div class="day-name">${name}</div>
-        <div class="day-icon">⚠️</div>
-        <div class="day-count">${total}</div>`;
+        <div class="day-count">
+          ${total}
+          ${
+            delta > 0
+              ? `<span class="delta-up">+${delta}</span>`
+              : delta < 0
+              ? `<span class="delta-down">${delta}</span>`
+              : ''
+          }
+        </div>`;
       wrap.appendChild(row);
     });
-}
+  }
