@@ -2,12 +2,12 @@
 const SUMMARY_URL    = 'data/summary.json';
 const DETAIL_ALL_URL = 'data/detail/detail_all.json';
 let summaryDataObj   = {};
-let daysToShow       = 7;
+const daysToShow       = 7;
 
 // 啟動流程
 document.addEventListener('DOMContentLoaded', async () => {
   await loadSummary();
-  // bindRangeControl();  // 已註解掉：暫時隱藏「顯示天數」功能
+  // bindRangeControl();  // 暫時關閉
   renderAll();
 });
 
@@ -18,16 +18,18 @@ async function loadSummary() {
   summaryDataObj = await res.json();
 }
 
--// 綁定「顯示天數」控制器
--function bindRangeControl() {
--  const inp = document.getElementById('daysInput');
--  const btn = document.getElementById('applyBtn');
--  if (!inp || !btn) return;
--  btn.addEventListener('click', () => {
--    daysToShow = Math.max(1, parseInt(inp.value, 10) || 7);
--    renderAll();
--  });
--}
+/*
+// 綁定「顯示天數」控制器
+function bindRangeControl() {
+  const inp = document.getElementById('daysInput');
+  const btn = document.getElementById('applyBtn');
+  if (!inp || !btn) return;
+  btn.addEventListener('click', () => {
+    daysToShow = Math.max(1, parseInt(inp.value, 10) || 7);
+    renderAll();
+  });
+}
+*/
 
 // 一次渲染所有區塊
 function renderAll() {
