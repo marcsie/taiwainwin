@@ -88,6 +88,27 @@
     .weekly-forecast .day-delta {
       text-align: center;
     }
+
+    /* 詳細動態用 */
+    .details-section .details-interval {
+      font-size: 14px;
+      opacity: 0.8;
+      margin-bottom: 12px;
+    }
+    .details-section .detail-row {
+      margin-bottom: 12px;
+    }
+    .details-section .detail-seq,
+    .details-section .detail-time,
+    .details-section .detail-info {
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+    .details-section hr {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      margin: 12px 0;
+    }
   </style>
 </head>
 
@@ -114,8 +135,11 @@
 
   <!-- 詳細動態 -->
   <div class="details-section">
-    <h2 class="details-title">今日詳細動態</h2>
-    <!-- dynamic detail rows will be injected here -->
+    <h2 class="details-title">詳細動態</h2>
+    <!-- 插入和上面相同的報告時間區間 -->
+    <div class="details-interval"></div>
+    <hr>
+    <!-- 以下 .detail-row 由 main.js 注入 -->
   </div>
   
   <!-- 7 日架次趨勢 -->
@@ -186,8 +210,6 @@
       </div>
     </div>
   </div>
-
-
 
   <!-- 載入外部 JS（main.js 必須在 body 最後） -->
   <script type="module" src="main.js"></script>
