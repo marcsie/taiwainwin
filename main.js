@@ -60,16 +60,20 @@ function getLatestRange () {
 
 /* ---------- 1. 今日摘要 ---------- */
 function renderTodaySummary (today) {
-  /* (a) 顯示日期 */
-  const d        = new Date(today.date);
-  const dateText = `${d.getFullYear()}年${String(d.getMonth()+1).padStart(2,'0')}月${String(d.getDate()).padStart(2,'0')}日 星期${'日一二三四五六'[d.getDay()]}`;
-  document.querySelector('.date').textContent = dateText;
+  // 1. 標題固定
+  document.querySelector('.today-title').textContent = '最新報告時間';
 
-  /* (b) 總數 */
-  const total = today['共機數量'] + today['共艦數量'] + today['公務船數量'] + today['氣球數量'];
-  document.querySelector('.total-count').textContent = total;
+  // 2. 顯示「報告時間區間」
+  document.querySelector('.report-interval').textContent = today['報告時間區間'];
 
-  /* (c) 四大細項（艦 / 機 / 船 / 氣球） */
+  // 3. 總架次（加前綴文字）
+  const total = today['共機數量']
+              + today['共艦數量']
+              + today['公務船數量']
+              + today['氣球數量'];
+  document.querySelector('.total-count').textContent = '總架次 ' + total;
+
+  // 4. 各類數字細項（維持不變）
   const nums = [
     today['共艦數量'],
     today['共機數量'],
@@ -78,7 +82,7 @@ function renderTodaySummary (today) {
   ];
   document.querySelectorAll('.detail-item p').forEach((p, i) => p.textContent = nums[i]);
 
-  /* (d) 軍機軍艦動態內文文字段落 */
+  // 5. 軍機軍艦動態內文文字段落
   let para = document.getElementById('dailyNarrative');
   if (!para) {
     para = document.createElement('p');
