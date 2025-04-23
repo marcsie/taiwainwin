@@ -141,11 +141,11 @@ function initTrendChart(index, canvasId, rangeData) {
   ];
   const datasets = confs.map(c => ({
     label: c.lbl,
-    data:  rangeData.map(d => d[c.key]),
+    data: rangeData.map(d => d[c.key]),
     borderColor: c.border,
     backgroundColor: c.bg,
     tension: 0.4,
-    pointRadius: 3,
+    pointRadius: index === 1 ? 0 : 2,  // 若是第 2 個 chart (30 日)，就不顯示圓點
     borderWidth: 2,
     fill: true
   }));
