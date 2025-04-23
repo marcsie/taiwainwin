@@ -1,40 +1,27 @@
-/* main.js  ── ©2025 依你的需求撰寫 */
-/* -------------------------------------------------- */
-/* HTML 前置要求：
-   1. index.html 已載入 Chart.js 3.x
-   2. 〈今日摘要〉區塊 class / id 與原範例一致
-   3. 在 header 或 today-summary 上方，手動加一段：
-      <div class="range-control">
-        <label>顯示天數：</label>
-        <input id="daysInput" type="number" value="7" min="1" max="365" />
-        <button id="applyBtn">套用</button>
-      </div>
-*/
+// main.js
+const SUMMARY_URL      = 'data/summary.json';
+const DETAIL_ALL_URL   = 'data/detail/detail_all.json';
+let summaryDataObj     = {};
+let daysToShow         = 7;
 
-const SUMMARY_URL      = 'data/summary.json';  // 全部摘要
-const DETAIL_BASE_URL  = 'data/detail/';       // 詳細事件資料夾
-let   summaryDataObj   = {};                   // {日期字串: 資料物件}
-let   daysToShow       = 7;                    // 預設顯示 7 天
-let   chartInstance    = null;
-
-/* ---------- 初始化 ---------- */
+// 啟動流程
 document.addEventListener('DOMContentLoaded', async () => {
-  await loadSummary();     // 讀 summary.json
-  bindRangeControl();      // 綁定「顯示天數」輸入框
-  renderAll();             // 首次渲染
+  await loadSummary();
+  bindRangeControl();
+  renderAll();
 });
 
-/* ---------- 資料讀取 ---------- */
-async function loadSummary () {
+// 讀取 summary.json
+async function loadSummary() {
   const res = await fetch(SUMMARY_URL);
   if (!res.ok) throw new Error('無法載入 summary.json');
   summaryDataObj = await res.json();
 }
 
-/* ---------- UI 綁定 ---------- */
-function bindRangeControl () {
-  const inp  = document.getElementById('daysInput');
-  const btn  = document.getElementById('applyBtn');
+// 綁定「顯示天數」控制器
+function bindRangeControl() {
+  const inp = document.getElementById('daysInput');
+  const btn = document.getElementById('applyBtn');
   if (!inp || !btn) return;
   btn.addEventListener('click', () => {
     daysToShow = Math.max(1, parseInt(inp.value, 10) || 7);
@@ -42,47 +29,43 @@ function bindRangeControl () {
   });
 }
 
-/* ---------- 主渲染 ---------- */
-function renderAll () {
-  const rangeData = getLatestRange(); // 取得最近 N 天資料陣列
-  renderTodaySummary(rangeData.at(-1));  // 今日摘要
-  renderWeekList(rangeData);             // 動態列表
-  renderChart(rangeData);                // 趨勢圖
-  loadDetail(rangeData.at(-1).date);     // 今日詳細事件
+// 一次渲染所有區塊
+function renderAll() {
+  const allDates = Object.keys(summaryDataObj).sort();
+  
+  // 1. 今日摘要 + 清單 + 詳細
+  const rangeData = allDates.slice(-daysToShow)
+    .map(d => ({ date: d, ...summaryDataObj[d] }));
+  renderTodaySummary(rangeData.at(-1));
+  renderWeekList(rangeData);
+  loadDetail(rangeData.at(-1).date);
+
+  // 2. 過去 7 日 & 30 日 趨勢圖
+  const last7  = allDates.slice(-7).map(d => ({ date: d, ...summaryDataObj[d] }));
+  const last30 = allDates.slice(-30).map(d => ({ date: d, ...summaryDataObj[d] }));
+  initTrendChart(0, 'trendChart7',  last7);   // 第 1 個 .trend-chart
+  initTrendChart(1, 'trendChart30', last30);  // 第 2 個 .trend-chart
 }
 
-/* 取得最近 N 天資料（由舊到新排序） */
-function getLatestRange () {
-  const dates = Object.keys(summaryDataObj).sort();      // 升冪
-  const slice = dates.slice(-daysToShow);
-  return slice.map(date => ({ date, ...summaryDataObj[date] }));
-}
+// ---------- 1. 今日摘要 ----------
+function renderTodaySummary(today) {
+  document.querySelector('.today-title').textContent       = '最新報告時間';
+  document.querySelector('.report-interval').textContent   = today['報告時間區間'];
+  const total = today['共機數量'] + today['共艦數量']
+              + today['公務船數量'] + today['氣球數量'];
+  document.querySelector('.total-count').textContent       = '總架次 ' + total;
 
-/* ---------- 1. 今日摘要 ---------- */
-function renderTodaySummary (today) {
-  // 1. 標題固定
-  document.querySelector('.today-title').textContent = '最新報告時間';
-
-  // 2. 顯示「報告時間區間」
-  document.querySelector('.report-interval').textContent = today['報告時間區間'];
-
-  // 3. 總架次（加前綴文字）
-  const total = today['共機數量']
-              + today['共艦數量']
-              + today['公務船數量']
-              + today['氣球數量'];
-  document.querySelector('.total-count').textContent = '總架次 ' + total;
-
-  // 4. 各類數字細項（維持不變）
   const nums = [
     today['共艦數量'],
     today['共機數量'],
     today['公務船數量'],
     today['氣球數量']
   ];
-  document.querySelectorAll('.detail-item p').forEach((p, i) => p.textContent = nums[i]);
+  document.querySelectorAll('.detail-item p').forEach((p, i) => {
+    p.textContent = nums[i];
+  });
 
-  // 5. 軍機軍艦動態內文文字段落
+  // 段落：軍機軍艦動態內文
   let para = document.getElementById('dailyNarrative');
   if (!para) {
     para = document.createElement('p');
@@ -93,113 +76,37 @@ function renderTodaySummary (today) {
   para.textContent = today['軍機軍艦動態內文'];
 }
 
-/* ---------- 2. 過去 N 日列表 ---------- */
-function renderWeekList (rangeData) {
+// ---------- 2. 過去 N 日列表 ----------
+function renderWeekList(rangeData) {
   const wrap = document.querySelector('.weekly-forecast');
-  /* 移除既有 .day-row */
-  wrap.querySelectorAll('.day-row').forEach(row => row.remove());
-
+  wrap.querySelectorAll('.day-row').forEach(r => r.remove());
   rangeData.slice().reverse().forEach((d, idx) => {
-    const rowDate = new Date(d.date);
-    const name = idx === 0 ? '今天' :
-                 idx === 1 ? '昨日' :
-                 `${rowDate.getMonth()+1}月${rowDate.getDate()}日`;
-
-    const total = d['共機數量'] + d['共艦數量'] + d['公務船數量'] + d['氣球數量'];
     const row = document.createElement('div');
     row.className = 'day-row';
+    const name = idx === 0 ? '今天'
+               : idx === 1 ? '昨日'
+               : `${d.date.slice(5).replace('-', '/')}日`;
+    const total = d['共機數量'] + d['共艦數量']
+                + d['公務船數量'] + d['氣球數量'];
     row.innerHTML = `
       <div class="day-name">${name}</div>
       <div class="day-icon">⚠️</div>
-      <div class="day-count">${total}</div>
-    `;
-    /* 點擊某日 → 讀取該日詳細事件 */
+      <div class="day-count">${total}</div>`;
     row.addEventListener('click', () => loadDetail(d.date));
     wrap.appendChild(row);
   });
 }
 
-/* ---------- 3. 趨勢圖 (Chart.js) ---------- */
-function renderChart (rangeData) {
-  const labels = rangeData.map(d => d.date.slice(5).replace('-', '/'));
-  const conf = [
-    { lbl: '軍艦',  key: '共艦數量',   border: '#ff3b30', bg: 'rgba(255,59,48,.6)' },
-    { lbl: '軍機',  key: '共機數量',   border: '#1e90ff', bg: 'rgba(30,144,255,.6)' },
-    { lbl: '公務船',key: '公務船數量', bg: '#ffcc00',     bg2:'rgba(255,204,0,.6)' },
-    { lbl: '氣球',  key: '氣球數量',   border: '#34c759', bg: 'rgba(52,199,89,.6)' }
-  ].map(c => ({
-    label: c.lbl,
-    data:  rangeData.map(d => d[c.key]),
-    borderColor: c.border,
-    backgroundColor: c.bg || c.bg2,
-    tension: 0.4,
-    pointRadius: 3,
-    borderWidth: 2,
-    fill: true
-  }));
-
-   if (!chartInstance) {
-     const ctx = document.getElementById('trendChart').getContext('2d');
-     chartInstance = new Chart(ctx, {
-       type: 'line',
-       data: { labels, datasets: conf },
-       options: {
-         plugins: { legend: { display: false } },
-         scales: {
-           y: {
-             beginAtZero: true,
-             stacked: true,
-   
-             /* === 新增：Y 軸只顯示整數 === */
-             ticks: {
-               stepSize: 1,                              // 刻度間距固定 1
-               callback: v => Number.isInteger(v) ? v : '' // 非整數不顯示
-             }
-             /* ================================= */
-           }
-         },
-         responsive: true,
-         maintainAspectRatio: false
-       }
-     });
-
-
-    /* 分類 Tab 互動（沿用原樣式） */
-    document.querySelectorAll('.category-tab').forEach((tab, idx) => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-
-        if (idx === 0) {              // 全部
-          chartInstance.data.datasets.forEach(ds => ds.hidden = false);
-          chartInstance.options.scales.y.stacked = true;
-        } else {                      // 單一類別
-          chartInstance.data.datasets.forEach((ds, i) => ds.hidden = i !== idx - 1);
-          chartInstance.options.scales.y.stacked = false;
-        }
-        chartInstance.update();
-      });
-    });
-  } else {
-    chartInstance.data.labels = labels;
-    chartInstance.data.datasets.forEach((ds, i) => ds.data = conf[i].data);
-    chartInstance.update();
-  }
-}
-
-/* ---------- 4. 讀取並渲染詳細事件 ---------- */
-async function loadDetail (dateStr) {
+// ---------- 3. 詳細動態載入 ----------
+async function loadDetail(dateStr) {
   const section = document.querySelector('.details-section');
   section.querySelectorAll('.detail-row').forEach(r => r.remove());
 
   try {
-    const res = await fetch('data/detail/detail_all.json');
-    if (!res.ok) throw new Error('讀取 detail_all 失敗');
+    const res = await fetch(DETAIL_ALL_URL);
+    if (!res.ok) throw new Error('讀取 detail_all.json 失敗');
     const allDetail = await res.json();
-
-    // 篩選出指定日期
     const detailArr = allDetail.filter(it => it['報告日期'] === dateStr);
-    if (detailArr.length === 0) throw new Error('當天無詳細事件');
 
     detailArr.forEach(item => {
       const row = document.createElement('div');
@@ -218,3 +125,71 @@ async function loadDetail (dateStr) {
   }
 }
 
+// ---------- 4. 通用趨勢圖函式 ----------
+function initTrendChart(index, canvasId, rangeData) {
+  // 取對應的 .trend-chart 區塊
+  const block = document.querySelectorAll('.trend-chart')[index];
+  if (!block) return;
+
+  // 準備 Chart.js 資料
+  const labels = rangeData.map(d => d.date.slice(5).replace('-', '/'));
+  const confs = [
+    { lbl:'軍艦',  key:'共艦數量',    border:'#ff3b30', bg:'rgba(255,59,48,0.6)' },
+    { lbl:'軍機',  key:'共機數量',    border:'#1e90ff', bg:'rgba(30,144,255,0.6)' },
+    { lbl:'公務船',key:'公務船數量',  border:'#ffcc00', bg:'rgba(255,204,0,0.6)' },
+    { lbl:'氣球',  key:'氣球數量',    border:'#34c759', bg:'rgba(52,199,89,0.6)' }
+  ];
+  const datasets = confs.map(c => ({
+    label: c.lbl,
+    data:  rangeData.map(d => d[c.key]),
+    borderColor: c.border,
+    backgroundColor: c.bg,
+    tension: 0.4,
+    pointRadius: 3,
+    borderWidth: 2,
+    fill: true
+  }));
+
+  // 建立 Chart
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  const chart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        y: {
+          beginAtZero: true,
+          stacked: true,
+          ticks: {
+            stepSize: 1,
+            callback: v => Number.isInteger(v) ? v : ''
+          }
+        }
+      },
+      responsive: true,
+      maintainAspectRatio: false
+    }
+  });
+
+  // 綁定本區塊的分類 Tab
+  block.querySelectorAll('.category-tab').forEach((tab, tabIdx) => {
+    tab.addEventListener('click', () => {
+      block.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      if (tabIdx === 0) {
+        chart.data.datasets.forEach(ds => ds.hidden = false);
+        chart.options.scales.y.stacked = true;
+      } else {
+        chart.data.datasets.forEach((ds, dsIdx) => ds.hidden = dsIdx !== (tabIdx - 1));
+        chart.options.scales.y.stacked = false;
+      }
+      chart.update();
+    });
+  });
+
+  // 自動觸發「全部」的初始狀態
+  const tabs = block.querySelectorAll('.category-tab');
+  if (tabs[0]) tabs[0].click();
+}
