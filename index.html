@@ -19,9 +19,6 @@
     .refresh { width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,.2);
                display:flex; justify-content:center; align-items:center; }
 
-    .range-control { margin-bottom:16px; font-size:14px; }
-    .range-control input { width:60px; margin:0 4px; }
-
     .today-summary,.trend-chart,.weekly-forecast,.details-section {
       background:rgba(255,255,255,.08); border-radius:20px; padding:20px; margin-bottom:20px; }
     .date      { font-size:16px; opacity:.8; margin-bottom:10px; }
@@ -38,20 +35,6 @@
 
     .chart-container{ position:relative; height:220px; width:100%; }
 
-    .weekly-forecast .day-row{ display:flex; justify-content:space-between; align-items:center;
-                               padding:12px 0; border-bottom:1px solid rgba(255,255,255,.1); }
-    .weekly-forecast .day-row:last-child{ border-bottom:none; }
-    .day-name{ flex:1; }
-    .day-icon{ flex:1; text-align:center; }
-    .day-count{ flex:1; text-align:right; font-weight:bold; }
-
-    .details-section .detail-row{ padding:10px 0; border-bottom:1px solid rgba(255,255,255,.1); }
-    .details-section .detail-row:last-child{ border-bottom:none; }
-    .detail-time{ font-size:14px; opacity:.7; margin-bottom:4px; }
-    .notification-dot{ display:inline-block; width:8px; height:8px;
-                       background:#ff3b30; border-radius:50%; margin-right:5px; }
-
-    /* 圖例列樣式 -------------------------------------------------- */
     .legend{
       display:flex;
       justify-content:space-around;
@@ -68,16 +51,14 @@
       border-radius:50%;
       margin-right:4px;
     }
-    /* ----------------------------------------------------------- */
 
-    /* 日增減箭頭、顏色 */
     .delta-up {
-      color: #D96B7B;         /* 紅色代表增加 */
+      color: #D96B7B;
       margin-left: 6px;
       font-size: 13px;
     }
     .delta-down {
-      color: #6B9E78;         /* 綠色代表減少 */
+      color: #6B9E78;
       margin-left: 6px;
       font-size: 13px;
     }
@@ -92,18 +73,19 @@
 
     /* 三欄平均寬度 */
     .weekly-forecast .list-labels > div,
-    .weekly-forecast .day-row > div {
+    .weekly-forecast .day-row   > div {
       flex: 1;
     }
-
-    /* 文字對齊 */
-    .weekly-forecast .day-name   { text-align: left; }
-    .weekly-forecast .day-count  { text-align: center; }
-    .weekly-forecast .day-delta  { text-align: center; }
 
     /* 欄位名稱粗體 */
     .weekly-forecast .list-labels > div {
       font-weight: bold;
+    }
+
+    /* 最後統一調整：架次 & 增減量 置中 */
+    .weekly-forecast .day-count,
+    .weekly-forecast .day-delta {
+      text-align: center;
     }
   </style>
 </head>
@@ -161,13 +143,12 @@
   <!-- 近 7 日總架次數量 -->
   <div id="totalList7" class="weekly-forecast">
     <h2 class="weekly-title">近 7 日總架次數量</h2>
-    <!-- 欄位名稱 -->
     <div class="list-labels">
       <div class="day-name">日期</div>
       <div class="day-count">架次</div>
       <div class="day-delta">增減量</div>
     </div>
-    <!-- 這裡會由 JS 動態插入 .day-row -->
+    <!-- 以下 .day-row 由 main.js 注入 -->
   </div>
 
   <!-- 30 日架次趨勢 -->
