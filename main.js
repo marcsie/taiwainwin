@@ -198,28 +198,31 @@ function initTrendChart(index, canvasId, rangeData) {
   if (tabs[0]) tabs[0].click();
 }
 
-// ---------- 5. 過去 7 日總架次列表 ----------
-function renderTotalList7Days(rangeData) {
-  const wrap = document.getElementById('totalList7');
-  if (!wrap) return;
-
-  wrap.querySelectorAll('.day-row').forEach(r => r.remove());
-  rangeData.slice().reverse().forEach((d, idx) => {
-    const row = document.createElement('div');
-    row.className = 'day-row';
-
-    const name = idx === 0 ? '今天'
-               : idx === 1 ? '昨日'
-               : d.date.slice(5).replace('-', '/');
-    const total = d['共機數量']
-                + d['共艦數量']
-                + d['公務船數量']
-                + d['氣球數量'];
-
-    row.innerHTML = `
-      <div class="day-name">${name}</div>
-      <div class="day-icon">⚠️</div>
-      <div class="day-count">${total}</div>`;
-    wrap.appendChild(row);
-  });
-}
+  // ---------- 5. 近 7 日總架次數量列表 ----------
+  function renderTotalList7Days(rangeData) {
+    const wrap = document.getElementById('totalList7');
+    if (!wrap) return;
+  
+    // 清除舊內容
+    wrap.querySelectorAll('.day-row').forEach(r => r.remove());
+  
+    // 倒序：最新日期在最上面
+    rangeData.slice().reverse().forEach(d => {
+      const row = document.createElement('div');
+      row.className = 'day-row';
+  
+      // 只顯示 MM/DD
+      const name = d.date.slice(5).replace('-', '/');
+  
+      const total = d['共機數量']
+                  + d['共艦數量']
+                  + d['公務船數量']
+                  + d['氣球數量'];
+  
+      row.innerHTML = `
+        <div class="day-name">${name}</div>
+        <div class="day-icon">⚠️</div>
+        <div class="day-count">${total}</div>`;
+      wrap.appendChild(row);
+    });
+  }
