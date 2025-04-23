@@ -17,7 +17,7 @@ async function loadSummary() {
   if (!res.ok) throw new Error('無法載入 summary.json');
   summaryDataObj = await res.json();
 }
-
+/* 把天數調整功能隱藏
 // 綁定「顯示天數」控制器
 function bindRangeControl() {
   const inp = document.getElementById('daysInput');
@@ -28,7 +28,7 @@ function bindRangeControl() {
     renderAll();
   });
 }
-
+*/
 // 一次渲染所有區塊
 function renderAll() {
   const allDates = Object.keys(summaryDataObj).sort();
