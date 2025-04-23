@@ -1,13 +1,12 @@
 // main.js
-const SUMMARY_URL    = 'data/summary.json';
-const DETAIL_ALL_URL = 'data/detail/detail_all.json';
-let summaryDataObj   = {};
-const daysToShow     = 7;
+const SUMMARY_URL      = 'data/summary.json';
+const DETAIL_ALL_URL   = 'data/detail/detail_all.json';
+let summaryDataObj     = {};
+let daysToShow         = 7;
 
 // 啟動流程
 document.addEventListener('DOMContentLoaded', async () => {
   await loadSummary();
-  // bindRangeControl();  // 暫時關閉
   renderAll();
 });
 
@@ -17,19 +16,6 @@ async function loadSummary() {
   if (!res.ok) throw new Error('無法載入 summary.json');
   summaryDataObj = await res.json();
 }
-
-/*
-// 綁定「顯示天數」控制器
-function bindRangeControl() {
-  const inp = document.getElementById('daysInput');
-  const btn = document.getElementById('applyBtn');
-  if (!inp || !btn) return;
-  btn.addEventListener('click', () => {
-    daysToShow = Math.max(1, parseInt(inp.value, 10) || 7);
-    renderAll();
-  });
-}
-*/
 
 // 一次渲染所有區塊
 function renderAll() {
@@ -73,7 +59,6 @@ function renderTodaySummary(today) {
     p.textContent = nums[i];
   });
 
-  // 段落：軍機軍艦動態內文
   let para = document.getElementById('dailyNarrative');
   if (!para) {
     para = document.createElement('p');
@@ -110,17 +95,12 @@ function renderWeekList(rangeData) {
 // ---------- 3. 詳細動態載入 ----------
 async function loadDetail(dateStr) {
   const section = document.querySelector('.details-section');
-  // 1. 先把 interval 填上去
-  const intervalDiv = section.querySelector('.details-interval');
-  const summary = summaryDataObj[dateStr];
-  if (summary && intervalDiv) {
-    intervalDiv.textContent = summary['報告時間區間'];
-  }
-
-  // 2. 清除舊的 detail-row
   section.querySelectorAll('.detail-row').forEach(r => r.remove());
 
-  // 3. 讀取並注入新的詳細動態
+  // 新增：同步填入報告時間區間
+  const intervalEl = section.querySelector('.details-interval');
+  intervalEl.textContent = summaryDataObj[dateStr]['報告時間區間'] || '';
+
   try {
     const res = await fetch(DETAIL_ALL_URL);
     if (!res.ok) throw new Error('讀取 detail_all.json 失敗');
@@ -137,8 +117,6 @@ async function loadDetail(dateStr) {
         </div>`;
       section.appendChild(row);
     });
-
-    // 標題也顯示日期
     section.querySelector('.details-title').textContent = `詳細動態 (${dateStr})`;
   } catch (err) {
     section.querySelector('.details-title').textContent = `詳細動態 (${dateStr})`;
@@ -151,7 +129,6 @@ function initTrendChart(index, canvasId, rangeData) {
   const block = document.querySelectorAll('.trend-chart')[index];
   if (!block) return;
 
-  // 計算 labels 為「公告日前一天」
   const labels = rangeData.map(d => {
     const dt = new Date(d.date);
     dt.setDate(dt.getDate() - 1);
@@ -198,7 +175,6 @@ function initTrendChart(index, canvasId, rangeData) {
     }
   });
 
-  // 綁定分類 Tab
   block.querySelectorAll('.category-tab').forEach((tab, tabIdx) => {
     tab.addEventListener('click', () => {
       block.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
@@ -214,35 +190,28 @@ function initTrendChart(index, canvasId, rangeData) {
     });
   });
 
-  // 初始觸發「全部」
   const tabs = block.querySelectorAll('.category-tab');
   if (tabs[0]) tabs[0].click();
 }
 
-// ---------- 5. 近 7 日總架次數量列表（公告前一天 + 日增減） ----------
+// ---------- 5. 近 7 日總架次列表 ----------
 function renderTotalList7Days(rangeData) {
   const wrap = document.getElementById('totalList7');
   if (!wrap) return;
-
-  // 清除舊內容
   wrap.querySelectorAll('.day-row').forEach(r => r.remove());
 
-  // 計算每一天的總架次
   const totals = rangeData.map(d =>
     d['共機數量'] + d['共艦數量'] + d['公務船數量'] + d['氣球數量']
   );
-  // 計算日增減（最舊那天顯示 null）
   const deltas = totals.map((t, i) =>
     i === 0 ? null : t - totals[i - 1]
   );
 
-  // 倒序：最新公告在最上面
   rangeData.slice().reverse().forEach((d, ridx) => {
     const ascIdx = totals.length - 1 - ridx;
     const total = totals[ascIdx];
     const delta = deltas[ascIdx];
 
-    // 公告日前一天
     const dt = new Date(d.date);
     dt.setDate(dt.getDate() - 1);
     const mm = String(dt.getMonth() + 1).padStart(2, '0');
@@ -254,15 +223,18 @@ function renderTotalList7Days(rangeData) {
     row.innerHTML = `
       <div class="day-name">${name}</div>
       <div class="day-count">${total}</div>
-      <div class="day-delta">${
-        delta === null
-          ? '-'
-          : delta > 0
-          ? `<span class="delta-up">+${delta}</span>`
-          : delta < 0
-          ? `<span class="delta-down">${delta}</span>`
-          : '0'
-      }</div>`;
+      <div class="day-delta">
+        ${
+          delta === null
+            ? '-' 
+            : delta > 0
+            ? `<span class="delta-up">+${delta}</span>`
+            : delta < 0
+            ? `<span class="delta-down">${delta}</span>`
+            : '0'
+        }
+      </div>
+    `;
     wrap.appendChild(row);
   });
 }
