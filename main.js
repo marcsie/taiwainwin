@@ -1,8 +1,9 @@
 // main.js
 const SUMMARY_URL    = 'data/summary.json';
 const DETAIL_ALL_URL = 'data/detail/detail_all.json';
-let summaryDataObj   = {};
-const daysToShow     = 7;
+
+let summaryDataObj = {};
+const daysToShow   = 7;
 
 // 啟動流程
 document.addEventListener('DOMContentLoaded', async () => {
@@ -20,12 +21,13 @@ async function loadSummary() {
 // 一次渲染所有區塊
 function renderAll() {
   const allDates = Object.keys(summaryDataObj).sort();
-
-  // 1. 今日摘要 + 清單 + 詳細
   const rangeData = allDates.slice(-daysToShow).map(d => ({ date: d, ...summaryDataObj[d] }));
+
+  // 1. 今日摘要 + 清單 + 詳細(載入前一天的詳細資料)
   renderTodaySummary(rangeData.at(-1));
   renderWeekList(rangeData);
-  loadDetail(rangeData.at(-1).date);
+  const detailDate = rangeData.length >= 2 ? rangeData.at(-2).date : rangeData.at(-1).date;
+  loadDetail(detailDate);
 
   // 2. 過去 7 日 趨勢圖 + 總列表
   const last7 = allDates.slice(-7).map(d => ({ date: d, ...summaryDataObj[d] }));
@@ -54,10 +56,9 @@ function renderTodaySummary(today) {
     today['公務船數量'],
     today['氣球數量']
   ];
-  document.querySelectorAll('.detail-item p').forEach((p, i) => {
-    p.textContent = nums[i];
-  });
+  document.querySelectorAll('.detail-item p').forEach((p, i) => p.textContent = nums[i]);
 
+  // 段落：軍機軍艦動態內文
   let para = document.getElementById('dailyNarrative');
   if (!para) {
     para = document.createElement('p');
@@ -94,13 +95,10 @@ function renderWeekList(rangeData) {
 // ---------- 3. 詳細動態載入 ----------
 async function loadDetail(dateStr) {
   const section = document.querySelector('.details-section');
-  // 清除舊內容
+  // 設定標題 & 時間區間
+  section.querySelector('.details-title').textContent    = '詳細動態';
+  section.querySelector('.details-interval').textContent = summaryDataObj[dateStr]['報告時間區間'] || '';
   section.querySelectorAll('.detail-row').forEach(r => r.remove());
-
-  // 更新標題與時間區間
-  section.querySelector('.details-title').textContent = '詳細動態';
-  section.querySelector('.details-interval').textContent =
-    summaryDataObj[dateStr]['報告時間區間'];
 
   try {
     const res = await fetch(DETAIL_ALL_URL);
@@ -155,22 +153,11 @@ function initTrendChart(index, canvasId, rangeData) {
 
   const ctx = document.getElementById(canvasId).getContext('2d');
   const chart = new Chart(ctx, {
-    type: 'line',
-    data: { labels, datasets },
+    type: 'line', data: { labels, datasets },
     options: {
       plugins: { legend:{ display:false } },
-      scales: {
-        y: {
-          beginAtZero: true,
-          stacked: true,
-          ticks: {
-            stepSize: 1,
-            callback: v => Number.isInteger(v) ? v : ''
-          }
-        }
-      },
-      responsive: true,
-      maintainAspectRatio: false
+      scales: { y: { beginAtZero:true, stacked:true, ticks:{stepSize:1, callback:v=>Number.isInteger(v)?v:''} } },
+      responsive:true, maintainAspectRatio:false
     }
   });
 
