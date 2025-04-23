@@ -207,7 +207,7 @@ function initTrendChart(index, canvasId, rangeData) {
   if (tabs[0]) tabs[0].click();
 }
 
-  // ---------- 5. 近 7 日總架次數量列表（公告前一天日期 + 日增減） ----------
+    // ---------- 5. 近 7 日總架次數量列表（公告前一天日期 + 日增減） ----------
   function renderTotalList7Days(rangeData) {
     const wrap = document.getElementById('totalList7');
     if (!wrap) return;
@@ -215,41 +215,42 @@ function initTrendChart(index, canvasId, rangeData) {
     // 清除舊內容
     wrap.querySelectorAll('.day-row').forEach(r => r.remove());
   
-    // 先算出每一天的總架次
+    // 計算每一天的總架次
     const totals = rangeData.map(d =>
       d['共機數量'] + d['共艦數量'] + d['公務船數量'] + d['氣球數量']
     );
-    // 計算與前一天的差值
+    // 與前一天相比的增減量
     const deltas = totals.map((t, i) => i === 0 ? 0 : t - totals[i - 1]);
   
-    // 倒序顯示：最新公告在最上面
+    // 倒序：最新公告在最上面
     rangeData.slice().reverse().forEach((d, ridx) => {
-      const ascIdx = totals.length - 1 - ridx; // 反向後對應原始 index
+      const ascIdx = totals.length - 1 - ridx;
       const total = totals[ascIdx];
       const delta = deltas[ascIdx];
   
-      // 公告日前一天作為顯示日期
+      // 公告日前一天
       const dt = new Date(d.date);
       dt.setDate(dt.getDate() - 1);
       const mm = String(dt.getMonth() + 1).padStart(2, '0');
       const dd = String(dt.getDate()).padStart(2, '0');
       const name = `${mm}/${dd}`;
   
-      // 組建一行
+      // 建立一列，三欄分開：
       const row = document.createElement('div');
       row.className = 'day-row';
       row.innerHTML = `
         <div class="day-name">${name}</div>
-        <div class="day-count">
-          ${total}
+        <div class="day-count">${total}</div>
+        <div class="day-delta">
           ${
             delta > 0
               ? `<span class="delta-up">+${delta}</span>`
               : delta < 0
               ? `<span class="delta-down">${delta}</span>`
-              : ''
+              : `0`
           }
-        </div>`;
+        </div>
+      `;
       wrap.appendChild(row);
     });
   }
