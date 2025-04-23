@@ -110,8 +110,17 @@ function renderWeekList(rangeData) {
 // ---------- 3. 詳細動態載入 ----------
 async function loadDetail(dateStr) {
   const section = document.querySelector('.details-section');
+  // 1. 先把 interval 填上去
+  const intervalDiv = section.querySelector('.details-interval');
+  const summary = summaryDataObj[dateStr];
+  if (summary && intervalDiv) {
+    intervalDiv.textContent = summary['報告時間區間'];
+  }
+
+  // 2. 清除舊的 detail-row
   section.querySelectorAll('.detail-row').forEach(r => r.remove());
 
+  // 3. 讀取並注入新的詳細動態
   try {
     const res = await fetch(DETAIL_ALL_URL);
     if (!res.ok) throw new Error('讀取 detail_all.json 失敗');
@@ -128,6 +137,8 @@ async function loadDetail(dateStr) {
         </div>`;
       section.appendChild(row);
     });
+
+    // 標題也顯示日期
     section.querySelector('.details-title').textContent = `詳細動態 (${dateStr})`;
   } catch (err) {
     section.querySelector('.details-title').textContent = `詳細動態 (${dateStr})`;
