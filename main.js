@@ -1,9 +1,8 @@
 // main.js
 const SUMMARY_URL    = 'data/summary.json';
 const DETAIL_ALL_URL = 'data/detail/detail_all.json';
-
-let summaryDataObj = {};
-const daysToShow   = 7;
+let summaryDataObj   = {};
+const daysToShow     = 7;
 
 // 啟動流程
 document.addEventListener('DOMContentLoaded', async () => {
@@ -21,13 +20,13 @@ async function loadSummary() {
 // 一次渲染所有區塊
 function renderAll() {
   const allDates = Object.keys(summaryDataObj).sort();
-  const rangeData = allDates.slice(-daysToShow).map(d => ({ date: d, ...summaryDataObj[d] }));
 
-  // 1. 今日摘要 + 清單 + 詳細(載入前一天的詳細資料)
+  // 1. 今日摘要 + 清單 + 詳細
+  const rangeData = allDates.slice(-daysToShow)
+    .map(d => ({ date: d, ...summaryDataObj[d] }));
   renderTodaySummary(rangeData.at(-1));
   renderWeekList(rangeData);
-  const detailDate = rangeData.length >= 2 ? rangeData.at(-2).date : rangeData.at(-1).date;
-  loadDetail(detailDate);
+  loadDetail(rangeData.at(-1).date);
 
   // 2. 過去 7 日 趨勢圖 + 總列表
   const last7 = allDates.slice(-7).map(d => ({ date: d, ...summaryDataObj[d] }));
@@ -56,9 +55,10 @@ function renderTodaySummary(today) {
     today['公務船數量'],
     today['氣球數量']
   ];
-  document.querySelectorAll('.detail-item p').forEach((p, i) => p.textContent = nums[i]);
+  document.querySelectorAll('.detail-item p').forEach((p, i) => {
+    p.textContent = nums[i];
+  });
 
-  // 段落：軍機軍艦動態內文
   let para = document.getElementById('dailyNarrative');
   if (!para) {
     para = document.createElement('p');
@@ -92,34 +92,57 @@ function renderWeekList(rangeData) {
   });
 }
 
-// ---------- 3. 詳細動態載入 ----------
+// ---------- 3. 詳細動態載入（前一天 + 無資料顯示提示） ----------
 async function loadDetail(dateStr) {
   const section = document.querySelector('.details-section');
-  // 設定標題 & 時間區間
-  section.querySelector('.details-title').textContent    = '詳細動態';
-  section.querySelector('.details-interval').textContent = summaryDataObj[dateStr]['報告時間區間'] || '';
-  section.querySelectorAll('.detail-row').forEach(r => r.remove());
+  // 清掉舊內容
+  section.querySelector('.details-interval').textContent = '';
+  section.querySelectorAll('.detail-row, .detail-empty').forEach(r => r.remove());
+
+  // 1) 顯示對應的報告時間區間
+  const interval = summaryDataObj[dateStr]?.['報告時間區間'] || '';
+  section.querySelector('.details-interval').textContent = interval;
+
+  // 2) 計算「前一天」的日期字串
+  const dt = new Date(dateStr);
+  dt.setDate(dt.getDate() - 1);
+  const detailDateStr = dt.toISOString().slice(0, 10);  // 'YYYY-MM-DD'
 
   try {
     const res = await fetch(DETAIL_ALL_URL);
     if (!res.ok) throw new Error('讀取 detail_all.json 失敗');
     const allDetail = await res.json();
-    const detailArr = allDetail.filter(it => it['報告日期'] === dateStr);
 
-    detailArr.forEach(item => {
-      const row = document.createElement('div');
-      row.className = 'detail-row';
-      row.innerHTML = `
-        <div class="detail-time">${item['時間區段']}</div>
-        <div class="detail-info">
-          <span class="notification-dot"></span>${item['內容']}
-        </div>`;
-      section.appendChild(row);
-    });
+    // 過濾出「報告日期」=== 前一天
+    const detailArr = allDetail.filter(it => it['報告日期'] === detailDateStr);
+
+    if (detailArr.length === 0) {
+      // 無資料時，顯示提示文字
+      const empty = document.createElement('div');
+      empty.className = 'detail-empty';
+      empty.textContent = '此日期時段無詳細動態';
+      section.appendChild(empty);
+    } else {
+      // 有資料才逐項渲染
+      detailArr.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'detail-row';
+        row.innerHTML = `
+          <div class="detail-time">項次：${item['項次']}　時間區段：${item['時間區段']}</div>
+          <div class="detail-info">${item['內容']}</div>`;
+        section.appendChild(row);
+      });
+    }
   } catch (err) {
     console.warn(err.message);
+    // 發生錯誤也顯示提示
+    const empty = document.createElement('div');
+    empty.className = 'detail-empty';
+    empty.textContent = '此日期時段無詳細動態';
+    section.appendChild(empty);
   }
 }
+
 
 // ---------- 4. 通用趨勢圖函式 ----------
 function initTrendChart(index, canvasId, rangeData) {
