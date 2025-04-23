@@ -2,7 +2,7 @@
 const SUMMARY_URL    = 'data/summary.json';
 const DETAIL_ALL_URL = 'data/detail/detail_all.json';
 let summaryDataObj   = {};
-const daysToShow       = 7;
+const daysToShow     = 7;
 
 // 啟動流程
 document.addEventListener('DOMContentLoaded', async () => {
@@ -140,10 +140,10 @@ function initTrendChart(index, canvasId, rangeData) {
   const block = document.querySelectorAll('.trend-chart')[index];
   if (!block) return;
 
-  // ◀── 這裡替換 labels 的計算 ──▶
+  // 計算 labels 為「公告日前一天」
   const labels = rangeData.map(d => {
     const dt = new Date(d.date);
-    dt.setDate(dt.getDate() - 1);  // 公告日前一天
+    dt.setDate(dt.getDate() - 1);
     const mm = String(dt.getMonth() + 1).padStart(2, '0');
     const dd = String(dt.getDate()).padStart(2, '0');
     return `${mm}/${dd}`;
@@ -186,6 +186,7 @@ function initTrendChart(index, canvasId, rangeData) {
       maintainAspectRatio: false
     }
   });
+
   // 綁定分類 Tab
   block.querySelectorAll('.category-tab').forEach((tab, tabIdx) => {
     tab.addEventListener('click', () => {
@@ -207,54 +208,50 @@ function initTrendChart(index, canvasId, rangeData) {
   if (tabs[0]) tabs[0].click();
 }
 
-      // ---------- 5. 近 7 日總架次數量列表（公告前一天日期 + 日增減） ----------
-    function renderTotalList7Days(rangeData) {
-      const wrap = document.getElementById('totalList7');
-      if (!wrap) return;
-    
-      // 清除舊內容
-      wrap.querySelectorAll('.day-row').forEach(r => r.remove());
-    
-      // 計算每一天的總架次
-      const totals = rangeData.map(d =>
-        d['共機數量'] + d['共艦數量'] + d['公務船數量'] + d['氣球數量']
-      );
-      // 與前一天相比的增減量：最舊那天改回傳 null
-      const deltas = totals.map((t, i) =>
-        i === 0 ? null : t - totals[i - 1]
-      );
-    
-      // 倒序：最新公告在最上面
-      rangeData.slice().reverse().forEach((d, ridx) => {
-        const ascIdx = totals.length - 1 - ridx;
-        const total = totals[ascIdx];
-        const delta = deltas[ascIdx];
-    
-        // 公告日前一天
-        const dt = new Date(d.date);
-        dt.setDate(dt.getDate() - 1);
-        const mm = String(dt.getMonth() + 1).padStart(2, '0');
-        const dd = String(dt.getDate()).padStart(2, '0');
-        const name = `${mm}/${dd}`;
-    
-        // 建立一列，三欄分開
-        const row = document.createElement('div');
-        row.className = 'day-row';
-        row.innerHTML = `
-          <div class="day-name">${name}</div>
-          <div class="day-count">${total}</div>
-          <div class="day-delta">
-            ${
-              delta === null
-                ? '-'   // 最舊那天顯示 "-"
-                : delta > 0
-                ? `<span class="delta-up">+${delta}</span>`
-                : delta < 0
-                ? `<span class="delta-down">${delta}</span>`
-                : '0'
-            }
-          </div>
-        `;
-        wrap.appendChild(row);
-      });
-    }
+// ---------- 5. 近 7 日總架次數量列表（公告前一天 + 日增減） ----------
+function renderTotalList7Days(rangeData) {
+  const wrap = document.getElementById('totalList7');
+  if (!wrap) return;
+
+  // 清除舊內容
+  wrap.querySelectorAll('.day-row').forEach(r => r.remove());
+
+  // 計算每一天的總架次
+  const totals = rangeData.map(d =>
+    d['共機數量'] + d['共艦數量'] + d['公務船數量'] + d['氣球數量']
+  );
+  // 計算日增減（最舊那天顯示 null）
+  const deltas = totals.map((t, i) =>
+    i === 0 ? null : t - totals[i - 1]
+  );
+
+  // 倒序：最新公告在最上面
+  rangeData.slice().reverse().forEach((d, ridx) => {
+    const ascIdx = totals.length - 1 - ridx;
+    const total = totals[ascIdx];
+    const delta = deltas[ascIdx];
+
+    // 公告日前一天
+    const dt = new Date(d.date);
+    dt.setDate(dt.getDate() - 1);
+    const mm = String(dt.getMonth() + 1).padStart(2, '0');
+    const dd = String(dt.getDate()).padStart(2, '0');
+    const name = `${mm}/${dd}`;
+
+    const row = document.createElement('div');
+    row.className = 'day-row';
+    row.innerHTML = `
+      <div class="day-name">${name}</div>
+      <div class="day-count">${total}</div>
+      <div class="day-delta">${
+        delta === null
+          ? '-'
+          : delta > 0
+          ? `<span class="delta-up">+${delta}</span>`
+          : delta < 0
+          ? `<span class="delta-down">${delta}</span>`
+          : '0'
+      }</div>`;
+    wrap.appendChild(row);
+  });
+}
