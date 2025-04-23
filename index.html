@@ -52,60 +52,59 @@
                        background:#ff3b30; border-radius:50%; margin-right:5px; }
 
     /* 圖例列樣式 -------------------------------------------------- */
-.legend{
-  display:flex;
-  justify-content:space-around;   /* 左右留白平均，可改 space-between */
-  margin-top:10px;
-  font-size:13px;
-}
-.legend-item{
-  display:flex;
-  align-items:center;
-}
-.legend-dot{
-  width:12px;
-  height:12px;
-  border-radius:50%;
-  margin-right:4px;
-}
-/* ----------------------------------------------------------- */
+    .legend{
+      display:flex;
+      justify-content:space-around;
+      margin-top:10px;
+      font-size:13px;
+    }
+    .legend-item{
+      display:flex;
+      align-items:center;
+    }
+    .legend-dot{
+      width:12px;
+      height:12px;
+      border-radius:50%;
+      margin-right:4px;
+    }
+    /* ----------------------------------------------------------- */
 
     /* 日增減箭頭、顏色 */
-.delta-up {
-  color: #D96B7B;         /* 紅色代表增加 */
-  margin-left: 6px;
-  font-size: 13px;
-}
-.delta-down {
-  color: #6B9E78;         /* 綠色代表減少 */
-  margin-left: 6px;
-  font-size: 13px;
-}
+    .delta-up {
+      color: #D96B7B;         /* 紅色代表增加 */
+      margin-left: 6px;
+      font-size: 13px;
+    }
+    .delta-down {
+      color: #6B9E78;         /* 綠色代表減少 */
+      margin-left: 6px;
+      font-size: 13px;
+    }
 
-  /* labels & 列表共用三欄 flex 版型 */
-  .weekly-forecast .list-labels,
-  .weekly-forecast .day-row {
-    display: flex;
-    align-items: center;
-    padding: 4px 0;
-  }
-  
-  /* 三欄平均寬度 */
-  .weekly-forecast .list-labels > div,
-  .weekly-forecast .day-row > div {
-    flex: 1;
-  }
-  
-  /* 文字對齊 */
-  .weekly-forecast .day-name { text-align: left; }
-  .weekly-forecast .day-count { text-align: center; }
-  .weekly-forecast .day-delta { text-align: right; }
-  
-  /* 欄位名稱粗體 */
-  .weekly-forecast .list-labels > div {
-    font-weight: bold;
-  }
-    
+    /* labels & 列表共用三欄 flex 版型 */
+    .weekly-forecast .list-labels,
+    .weekly-forecast .day-row {
+      display: flex;
+      align-items: center;
+      padding: 4px 0;
+    }
+
+    /* 三欄平均寬度 */
+    .weekly-forecast .list-labels > div,
+    .weekly-forecast .day-row > div {
+      flex: 1;
+    }
+
+    /* 文字對齊 */
+    .weekly-forecast .day-name   { text-align: left; }
+    .weekly-forecast .day-count  { text-align: center; }
+    .weekly-forecast .day-delta  { text-align: center; }
+
+    /* 欄位名稱粗體 */
+    .weekly-forecast .list-labels > div {
+      font-weight: bold;
+    }
   </style>
 </head>
 
@@ -117,32 +116,22 @@
     <div class="refresh">↻</div>
   </div>
 
-<!-- 隱藏天數控制
-  <div class="range-control">
-    <label>顯示天數：</label>
-    <input id="daysInput" type="number" value="7" min="1" max="365" step="1" />
-    <button id="applyBtn">套用</button>
-  </div>
--->
-
   <!-- 今日摘要 -->
   <div class="today-summary">
     <h3 class="today-title">最新報告時間</h3>
     <div class="report-interval">---</div>
-    <div class="total-count">總架次 ‑‑‑</div>
+    <div class="total-count">總架次 ---</div>
     <div class="summary-detail">
-      <div class="detail-item"><h3>軍艦</h3><p>‑‑‑</p></div>
-      <div class="detail-item"><h3>軍機</h3><p>‑‑‑</p></div>
-      <div class="detail-item"><h3>公務船</h3><p>‑‑‑</p></div>
-      <div class="detail-item"><h3>氣球</h3><p>‑‑‑</p></div>
+      <div class="detail-item"><h3>軍艦</h3><p>---</p></div>
+      <div class="detail-item"><h3>軍機</h3><p>---</p></div>
+      <div class="detail-item"><h3>公務船</h3><p>---</p></div>
+      <div class="detail-item"><h3>氣球</h3><p>---</p></div>
     </div>
   </div>
 
-<!-- 7 日架次趨勢 -->
+  <!-- 7 日架次趨勢 -->
   <div class="trend-chart">
     <h2 class="chart-title">最近 7 日架次趨勢</h2>
-  
-    <!-- 分類 Tab （共用） -->
     <div class="category-tabs">
       <div class="category-tab active">全部</div>
       <div class="category-tab">軍艦</div>
@@ -150,13 +139,9 @@
       <div class="category-tab">公務船</div>
       <div class="category-tab">氣球</div>
     </div>
-  
-    <!-- Chart.js Canvas -->
     <div class="chart-container">
       <canvas id="trendChart7"></canvas>
     </div>
-  
-    <!-- 圖例 -->
     <div class="legend">
       <div class="legend-item">
         <span class="legend-dot" style="background:#ff3b30;"></span>軍艦
@@ -176,20 +161,18 @@
   <!-- 近 7 日總架次數量 -->
   <div id="totalList7" class="weekly-forecast">
     <h2 class="weekly-title">近 7 日總架次數量</h2>
-    <!-- ✏️ 只顯示欄位名稱 -->
+    <!-- 欄位名稱 -->
     <div class="list-labels">
       <div class="day-name">日期</div>
       <div class="day-count">架次</div>
       <div class="day-delta">增減量</div>
-  </div>
-    
+    </div>
+    <!-- 這裡會由 JS 動態插入 .day-row -->
   </div>
 
-  
   <!-- 30 日架次趨勢 -->
   <div class="trend-chart">
     <h2 class="chart-title">最近 30 日架次趨勢</h2>
-  
     <div class="category-tabs">
       <div class="category-tab active">全部</div>
       <div class="category-tab">軍艦</div>
@@ -197,11 +180,9 @@
       <div class="category-tab">公務船</div>
       <div class="category-tab">氣球</div>
     </div>
-  
     <div class="chart-container">
       <canvas id="trendChart30"></canvas>
     </div>
-  
     <div class="legend">
       <div class="legend-item">
         <span class="legend-dot" style="background:#ff3b30;"></span>軍艦
@@ -217,8 +198,6 @@
       </div>
     </div>
   </div>
-  
-
 
   <!-- 詳細動態 -->
   <div class="details-section">
