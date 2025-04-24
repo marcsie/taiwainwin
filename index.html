@@ -53,6 +53,14 @@
       font-weight: bold;
     }
 
+    /* ---------- Logo 置中 ---------- */
+    .logo {
+      display: block;            /* 區塊元素才能置中 */
+      margin: 0 auto 24px;       /* 上方 0、左右自動、下方 24px */
+      max-width: auto;          /* 最寬 150px，可視需求調整 */
+      height: 30px;
+    }
+    
     /* 頁首 */
     .header {
       display: flex;
@@ -235,7 +243,10 @@
 </head>
 
 <body>
-  <!-- 頁首 -->
+<!-- 1. Logo 置中顯示 -->
+<img src="taiwanwin-logo-w.png" alt="Taiwanwin Logo" class="logo"> 
+
+<!-- 頁首 -->
   <div class="header">
     <h1 class="title">臺海周邊海、空域動態</h1>
     <!-- 公告按鈕：點擊導向 about.html -->
