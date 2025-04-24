@@ -8,7 +8,22 @@
  
    <!-- Chart.js -->
    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
- 
+
+    <!-- ↓ 你的全域調色 CSS（一定要放在其他樣式載入後面） -->
+    <style>
+      /* 1. 一般文字（預設）變成 #F0F0F0 */
+      body {
+        color: #F0F0F0;
+      }
+      /* 2. 標題統一用純白 */
+      h1, h2, h3, h4, h5, h6,
+      .today-title,
+      .details-title {
+        color: #FFFFFF !important;
+      }
+    </style>
+    <!-- ↑ 全域調色結束 ↑ -->
+  
    <!-- 基礎樣式（取自之前範例，稍作精簡） -->
    <style>
      * { margin:0; padding:0; box-sizing:border-box;
