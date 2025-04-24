@@ -24,7 +24,7 @@
   </style>
   <!-- ↑ 全域調色結束 ↑ -->
 
-  <!-- 基礎樣式（取自之前範例，稍作精簡） -->
+  <!-- 基礎樣式 -->
   <style>
     /* 重置並設定字型 */
     * {
@@ -33,16 +33,19 @@
       box-sizing: border-box;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
+
     /* 背景與文字顏色 */
     body {
       background: #000;
-      color: #F0F0F0;        /* 改為 #F0F0F0 */
+      color: #F0F0F0;
       padding: 20px 16px;
     }
+
     /* 標題加粗 */
     h1, h2 {
       font-weight: bold;
     }
+
     /* 頁首 */
     .header {
       display: flex;
@@ -53,6 +56,7 @@
     .title {
       font-size: 32px;
     }
+    /* 公告按鈕樣式 */
     .refresh {
       width: 36px;
       height: 36px;
@@ -61,6 +65,18 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      cursor: pointer; /* 滑鼠指標樣式 */
+    }
+    .refresh a {
+      color: #F0F0F0;
+      text-decoration: none;
+      font-size: 20px; /* 圖示大小 */
+    }
+
+    /* 時間區段改成 14px */
+    .report-interval,
+    .details-interval {
+      font-size: 14px;
     }
 
     /* 區塊背景與間距 */
@@ -73,11 +89,7 @@
       padding: 20px;
       margin-bottom: 20px;
     }
-   /* 時間區段改成 14px */
-    .report-interval,
-    .details-interval {
-      font-size: 14px;
-    }
+
     /* 今日摘要 */
     .date {
       font-size: 16px;
@@ -174,7 +186,7 @@
       padding: 4px 0;
     }
     .weekly-forecast .list-labels > div,
-    .weekly-forecast .day-row   > div {
+    .weekly-forecast .day-row > div {
       flex: 1;
     }
     .weekly-forecast .list-labels > div {
@@ -208,11 +220,11 @@
 </head>
 
 <body>
-
   <!-- 頁首 -->
   <div class="header">
     <h1 class="title">臺海周邊海、空域動態</h1>
-    <div class="refresh">↻</div>
+    <!-- 公告按鈕：點擊導向 about.html -->
+    <a class="refresh" href="about.html" title="公告">📢</a>
   </div>
 
   <!-- 今日摘要 -->
