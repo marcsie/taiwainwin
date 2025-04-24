@@ -3,67 +3,84 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>關於 – 台灣贏</title>
+  <title>關於 – 臺海周邊海、空域動態</title>
   <style>
-    /* ---------- 全域版面 ---------- */
+    /* ---------- 全域樣式 ---------- */
     body {
-      background: #0D1117;       /* 跟 index 同樣底色 */
-      color: #F0F0F0;            /* 文字預設色 */
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+      background: #FFFFFF;       /* 背景：純白 */
+      color: #333333;            /* 主要文字：深灰 */
+      font-family: -apple-system, BlinkMacSystemFont,
+        "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
       line-height: 1.6;
       padding: 20px;
     }
-    a { text-decoration: none; }
-    /* ---------- 返回連結 ---------- */
-     .back-link {
-      display: block;            /* 獨立一行 */
-      color: #1e90ff;            /* 藍色 */
-      font-size: 16px;
-      margin-bottom: 24px;       /* 與標題間距 */
+    a {
+      text-decoration: none;
     }
-    /* ---------- 區塊標題 ---------- */
+
+    /* ---------- 1. Logo 置中 ---------- */
+    .logo {
+      display: block;            /* 區塊元素，才能置中 */
+      margin: 0 auto 24px;       /* 上下間距 24px */
+      max-width: 200px;          /* 最寬 200px */
+      height: auto;
+    }
+
+    /* ---------- 2. 返回首頁按鈕樣式 ---------- */
+    .back-button {
+      display: inline-block;     /* 像按鈕一樣排版 */
+      background-color: #1e90ff; /* 藍底 */
+      color: #ffffff;            /* 白字 */
+      padding: 8px 16px;         /* 內距 */
+      border-radius: 4px;        /* 圓角 */
+      font-size: 14px;
+      margin-bottom: 24px;       /* 與下方內容間距 */
+    }
+    .back-button:hover {
+      background-color: #1c86ee; /* 滑過時顏色加深 */
+    }
+
+    /* ---------- 區塊標題（關於、其他） ---------- */
     .section-title {
       position: relative;
-      display: inline-block;
-      color: #e67e22;           /* 橘色文字 */
+      color: #e67e22; /* 橘色文字 */
       font-size: 18px;
-      margin: 32px 0 12px;
-      padding-bottom: 4px;
+      margin: 0 0 12px;
+      padding-bottom: 4px; /* 底下留空間放底線 */
     }
     .section-title::after {
       content: "";
       position: absolute;
-      left: 0;
-      bottom: 0;
-      width: 100%;
-      height: 2px;
-      background: #e67e22;     /* 橘色底線 */
+      left: 0; bottom: 0;
+      width: 100%; height: 2px;
+      background: #e67e22; /* 橘色底線 */
     }
-    /* ---------- 內文段落 ---------- */
+
+    /* ---------- 內文段落樣式 ---------- */
     .about-container p {
-      margin-bottom: 16px;
+      color: #555555;    /* 次要文字：深灰但比主文字淺 */
       font-size: 14px;
-      opacity: 0.9;
+      margin-bottom: 16px;
     }
   </style>
 </head>
 <body>
   <div class="about-container">
-    <!-- 返回首頁 -->
-    <a class="back-link" href="index.html">← 按此返回首頁</a>
+    <!-- 1. 頁面最上方 logo -->
+    <img src="taiwanwin-logo-w.png" alt="Taiwanwin Logo" class="logo">
 
-    <!-- 「關於」區塊 -->
-    <h2 class="section-title">關於 台灣贏</h2>
+    <!-- 2. 返回首頁按鈕 -->
+    <a href="index.html" class="back-button">← 按此返回首頁</a>
+
+    <!-- 「關於」 區塊 -->
+    <h2 class="section-title">關於</h2>
     <p>本站／製作者之意見，不代表中華民國國防部，也不代表台灣政府。</p>
-    <p>本站軍事動態之數據，皆取自中華民國國防部之公開資料，更新時間為每日 10:00 ~ 12:00。數據若有遺漏或錯誤，請以中華民國國防部為準，或者寫信告知我修正。</p>
-
-    <!-- 「其他」區塊 -->
-    <h2 class="section-title">其他</h2>
+    <p>本站軍事動態之數據，皆取自中華民國國防部之公開資料，更新時間為每日 12:00 之前。數據可能有遺漏或錯誤，請以中華民國國防部為準，或者寫信告知我修正。</p>
     <p>因為網址是 Taiwanwin，網站名稱就取了「台灣贏」。</p>
-    <p>許願池、bug回報等：taiwanwin2025@gmail.com</p>
-    
-    <p>如果這個網站對你有幫助，可以考慮請我喝杯咖啡，或贊助一點維護的費用。</p>
-    
+
+    <!-- 「其他」 區塊 -->
+    <h2 class="section-title">其他</h2>
+    <p>歡迎贊助</p>
   </div>
 </body>
 </html>
