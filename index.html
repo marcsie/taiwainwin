@@ -1,233 +1,291 @@
 <!DOCTYPE html>
- <html lang="zh-TW">
- <head>
-   <link rel="icon" type="image/x-icon" href="./favicon.ico" />
-   <meta charset="UTF-8" />
-   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-   <title>軍事動態資訊</title>
- 
-   <!-- Chart.js -->
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<html lang="zh-TW">
+<head>
+  <link rel="icon" type="image/x-icon" href="./favicon.ico" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>軍事動態資訊</title>
 
-    <!-- ↓ 你的全域調色 CSS（一定要放在其他樣式載入後面） -->
-    <style>
-      /* 1. 一般文字（預設）變成 #F0F0F0 */
-      body {
-        color: #F0F0F0;
-      }
-      /* 2. 標題統一用純白 */
-      h1, h2, h3, h4, h5, h6,
-      .today-title,
-      .details-title {
-        color: #FFFFFF !important;
-      }
-    </style>
-    <!-- ↑ 全域調色結束 ↑ -->
-  
-   <!-- 基礎樣式（取自之前範例，稍作精簡） -->
-   <style>
-     * { margin:0; padding:0; box-sizing:border-box;
-         font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
-     body     { background:#000; color:#fff; padding:20px 16px; }
-     h1,h2    { font-weight:bold; }
-     .header  { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-     .title   { font-size:32px; }
-     .refresh { width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,.2);
-                display:flex; justify-content:center; align-items:center; }
- 
-     .today-summary,.trend-chart,.weekly-forecast,.details-section {
-       background:rgba(124,177,222,0.35); border-radius:20px; padding:20px; margin-bottom:20px; }
-     .date      { font-size:16px; opacity:.8; margin-bottom:10px; }
-     .total-count{ font-size:48px; margin-bottom:16px; }
-     .summary-detail{ display:flex; justify-content:space-between; border-top:1px solid rgba(255,255,255,.2); padding-top:16px; }
-     .detail-item{ flex:1; text-align:center; }
-     .detail-item h3{ font-size:14px; opacity:.8; margin-bottom:6px; }
-     .detail-item p { font-size:20px; font-weight:bold; }
- 
-     .category-tabs { display:flex; justify-content:space-between; margin-bottom:10px; }
-     .category-tab  { flex:1; text-align:center; padding:8px 0; background:rgba(255,255,255,.05);
-                      border-radius:8px; margin:0 2px; font-size:13px; cursor:pointer; }
-     .category-tab.active { background:rgba(255,255,255,.2); font-weight:bold; }
- 
-     .chart-container{ position:relative; height:220px; width:100%; }
- 
-     .legend{
-       display:flex;
-       justify-content:space-around;
-       margin-top:10px;
-       font-size:13px;
-       }
-     .legend-item{
-       display:flex;
-       align-items:center;
-     }
-     .legend-dot{
-       width:12px;
-       height:12px;
-       border-radius:50%;
-       margin-right:4px;
-     }
- 
-     .delta-up {
-       color: #D96B7B;
-       margin-left: 6px;
-       font-size: 13px;
-     }
-     .delta-down {
-       color: #6B9E78;
-       margin-left: 6px;
-       font-size: 13px;
-     }
- 
-     /* labels & 列表共用三欄 flex 版型 */
-     .weekly-forecast .list-labels,
-     .weekly-forecast .day-row {
-       display: flex;
-       align-items: center;
-       padding: 4px 0;
-     }
- 
-     /* 三欄平均寬度 */
-     .weekly-forecast .list-labels > div,
-     .weekly-forecast .day-row   > div {
-       flex: 1;
-     }
- 
-     /* 欄位名稱粗體 */
-     .weekly-forecast .list-labels > div {
-       font-weight: bold;
-     }
- 
-     /* 最後統一調整：架次 & 增減量 置中 */
-     .weekly-forecast .day-count,
-     .weekly-forecast .day-delta {
-       text-align: center;
-     }
- 
-     /* 詳細動態用 */
-     .details-section .details-interval {
-       font-size: 14px;
-       opacity: 0.8;
-       margin-bottom: 12px;
-     }
-     .details-section .detail-row {
-       margin-bottom: 12px;
-     }
-     .details-section .detail-seq,
-     .details-section .detail-time,
-     .details-section .detail-info {
-       margin-bottom: 6px;
-       font-size: 14px;
-     }
-     .details-section hr {
-       border: none;
-       border-top: 1px solid rgba(255,255,255,0.2);
-       margin: 12px 0;
-     }
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 
-   </style>
- </head>
- 
- <body>
- 
-   <!-- 頁首 -->
-   <div class="header">
-     <h1 class="title">臺海周邊海、空域動態</h1>
-     <div class="refresh">↻</div>
-   </div>
- 
-   <!-- 今日摘要 -->
-   <div class="today-summary">
-     <h2 class="today-title">最新報告時間</h2>
-     <div class="report-interval">---</div>
-     <div class="total-count">總架次 ---</div>
-     <div class="summary-detail">
-       <div class="detail-item"><h3>軍艦</h3><p>---</p></div>
-       <div class="detail-item"><h3>軍機</h3><p>---</p></div>
-       <div class="detail-item"><h3>公務船</h3><p>---</p></div>
-       <div class="detail-item"><h3>氣球</h3><p>---</p></div>
-     </div>
-   </div>
- 
-   <!-- 詳細動態 -->
-   <div class="details-section">
-     <h2 class="details-title">詳細動態</h2>
-     <!-- 插入和上面相同的報告時間區間 -->
-     <div class="details-interval"></div>
-     <hr>
-     <!-- 以下 .detail-row 由 main.js 注入 -->
-   </div>
-   
-   <!-- 7 日架次趨勢 -->
-   <div class="trend-chart">
-     <h2 class="chart-title">最近 7 日架次趨勢</h2>
-     <div class="category-tabs">
-       <div class="category-tab active">全部</div>
-       <div class="category-tab">軍艦</div>
-       <div class="category-tab">軍機</div>
-       <div class="category-tab">公務船</div>
-       <div class="category-tab">氣球</div>
-     </div>
-     <div class="chart-container">
-       <canvas id="trendChart7"></canvas>
-     </div>
-     <div class="legend">
-       <div class="legend-item">
-         <span class="legend-dot" style="background:#ff3b30;"></span>軍艦
-       </div>
-       <div class="legend-item">
-         <span class="legend-dot" style="background:#1e90ff;"></span>軍機
-       </div>
-       <div class="legend-item">
-         <span class="legend-dot" style="background:#ffcc00;"></span>公務船
-          </div>
-       <div class="legend-item">
-         <span class="legend-dot" style="background:#34c759;"></span>氣球
-       </div>
-     </div>
-   </div>
- 
-   <!-- 近 7 日總架次數量 -->
-   <div id="totalList7" class="weekly-forecast">
-     <h2 class="weekly-title">最近 7 日總架次數量</h2>
-     <div class="list-labels">
-       <div class="day-name">日期</div>
-       <div class="day-count">架次</div>
-       <div class="day-delta">增減量</div>
-     </div>
-     <!-- 以下 .day-row 由 main.js 注入 -->
-   </div>
- 
-   <!-- 30 日架次趨勢 -->
-   <div class="trend-chart">
-     <h2 class="chart-title">最近 30 日架次趨勢</h2>
-     <div class="category-tabs">
-       <div class="category-tab active">全部</div>
-       <div class="category-tab">軍艦</div>
-       <div class="category-tab">軍機</div>
-       <div class="category-tab">公務船</div>
-       <div class="category-tab">氣球</div>
-     </div>
-     <div class="chart-container">
-       <canvas id="trendChart30"></canvas>
-     </div>
-     <div class="legend">
-       <div class="legend-item">
-         <span class="legend-dot" style="background:#ff3b30;"></span>軍艦
-       </div>
-       <div class="legend-item">
-         <span class="legend-dot" style="background:#1e90ff;"></span>軍機
-       </div>
-       <div class="legend-item">
-         <span class="legend-dot" style="background:#ffcc00;"></span>公務船
-       </div>
-       <div class="legend-item">
-         <span class="legend-dot" style="background:#34c759;"></span>氣球
-       </div>
-     </div>
-   </div>
- 
-   <!-- 載入外部 JS（main.js 必須在 body 最後） -->
-   <script type="module" src="main.js"></script>
- </body>
- </html>
+  <!-- ↓ 全域調色 CSS，放在其他樣式之前，確保優先套用 ↓ -->
+  <style>
+    /* 1. 將一般文字預設為灰白 #F0F0F0 */
+    body {
+      color: #F0F0F0;
+    }
+    /* 2. 所有標題（h1~h6）及指定標題類別強制為純白 #FFFFFF */
+    h1, h2, h3, h4, h5, h6,
+    .today-title,
+    .details-title {
+      color: #FFFFFF !important;
+    }
+  </style>
+  <!-- ↑ 全域調色結束 ↑ -->
+
+  <!-- 基礎樣式（取自之前範例，稍作精簡） -->
+  <style>
+    /* 重置並設定字型 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    /* 背景與文字顏色 */
+    body {
+      background: #000;
+      color: #F0F0F0;        /* 改為 #F0F0F0 */
+      padding: 20px 16px;
+    }
+    /* 標題加粗 */
+    h1, h2 {
+      font-weight: bold;
+    }
+    /* 頁首 */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .title {
+      font-size: 32px;
+    }
+    .refresh {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* 區塊背景與間距 */
+    .today-summary,
+    .trend-chart,
+    .weekly-forecast,
+    .details-section {
+      background: rgba(124,177,222,0.35);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    /* 今日摘要 */
+    .date {
+      font-size: 16px;
+      opacity: .8;
+      margin-bottom: 10px;
+    }
+    .total-count {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    .summary-detail {
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255,255,255,.2);
+      padding-top: 16px;
+    }
+    .detail-item {
+      flex: 1;
+      text-align: center;
+    }
+    .detail-item h3 {
+      font-size: 14px;
+      opacity: .8;
+      margin-bottom: 6px;
+    }
+    .detail-item p {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    /* 趨勢圖分類切換 */
+    .category-tabs {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .category-tab {
+      flex: 1;
+      text-align: center;
+      padding: 8px 0;
+      background: rgba(255,255,255,.05);
+      border-radius: 8px;
+      margin: 0 2px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .category-tab.active {
+      background: rgba(255,255,255,.2);
+      font-weight: bold;
+    }
+
+    /* 圖表容器 */
+    .chart-container {
+      position: relative;
+      height: 220px;
+      width: 100%;
+    }
+
+    /* 圖例 */
+    .legend {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+    }
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+
+    /* 增減量樣式 */
+    .delta-up {
+      color: #D96B7B;
+      margin-left: 6px;
+      font-size: 13px;
+    }
+    .delta-down {
+      color: #6B9E78;
+      margin-left: 6px;
+      font-size: 13px;
+    }
+
+    /* 7 日列表三欄版型 */
+    .weekly-forecast .list-labels,
+    .weekly-forecast .day-row {
+      display: flex;
+      align-items: center;
+      padding: 4px 0;
+    }
+    .weekly-forecast .list-labels > div,
+    .weekly-forecast .day-row   > div {
+      flex: 1;
+    }
+    .weekly-forecast .list-labels > div {
+      font-weight: bold;
+    }
+    .weekly-forecast .day-count,
+    .weekly-forecast .day-delta {
+      text-align: center;
+    }
+
+    /* 詳細動態 */
+    .details-section .details-interval {
+      font-size: 14px;
+      opacity: 0.8;
+      margin-bottom: 12px;
+    }
+    .details-section .detail-row {
+      margin-bottom: 12px;
+    }
+    .details-section .detail-time,
+    .details-section .detail-info {
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+    .details-section hr {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      margin: 12px 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 頁首 -->
+  <div class="header">
+    <h1 class="title">臺海周邊海、空域動態</h1>
+    <div class="refresh">↻</div>
+  </div>
+
+  <!-- 今日摘要 -->
+  <div class="today-summary">
+    <h2 class="today-title">最新報告時間</h2>
+    <div class="report-interval">---</div>
+    <div class="total-count">總架次 ---</div>
+    <div class="summary-detail">
+      <div class="detail-item"><h3>軍艦</h3><p>---</p></div>
+      <div class="detail-item"><h3>軍機</h3><p>---</p></div>
+      <div class="detail-item"><h3>公務船</h3><p>---</p></div>
+      <div class="detail-item"><h3>氣球</h3><p>---</p></div>
+    </div>
+  </div>
+
+  <!-- 詳細動態 -->
+  <div class="details-section">
+    <h2 class="details-title">詳細動態</h2>
+    <div class="details-interval"></div>
+    <hr>
+    <!-- .detail-row 由 main.js 注入 -->
+  </div>
+
+  <!-- 最近 7 日架次趨勢 -->
+  <div class="trend-chart">
+    <h2 class="chart-title">最近 7 日架次趨勢</h2>
+    <div class="category-tabs">
+      <div class="category-tab active">全部</div>
+      <div class="category-tab">軍艦</div>
+      <div class="category-tab">軍機</div>
+      <div class="category-tab">公務船</div>
+      <div class="category-tab">氣球</div>
+    </div>
+    <div class="chart-container">
+      <canvas id="trendChart7"></canvas>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#ff3b30;"></span>軍艦</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#1e90ff;"></span>軍機</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#ffcc00;"></span>公務船</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#34c759;"></span>氣球</div>
+    </div>
+  </div>
+
+  <!-- 最近 7 日總架次數量 -->
+  <div id="totalList7" class="weekly-forecast">
+    <h2 class="weekly-title">最近 7 日總架次數量</h2>
+    <div class="list-labels">
+      <div class="day-name">日期</div>
+      <div class="day-count">架次</div>
+      <div class="day-delta">增減量</div>
+    </div>
+    <!-- .day-row 由 main.js 注入 -->
+  </div>
+
+  <!-- 最近 30 日架次趨勢 -->
+  <div class="trend-chart">
+    <h2 class="chart-title">最近 30 日架次趨勢</h2>
+    <div class="category-tabs">
+      <div class="category-tab active">全部</div>
+      <div class="category-tab">軍艦</div>
+      <div class="category-tab">軍機</div>
+      <div class="category-tab">公務船</div>
+      <div class="category-tab">氣球</div>
+    </div>
+    <div class="chart-container">
+      <canvas id="trendChart30"></canvas>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#ff3b30;"></span>軍艦</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#1e90ff;"></span>軍機</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#ffcc00;"></span>公務船</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#34c759;"></span>氣球</div>
+    </div>
+  </div>
+
+  <!-- 載入外部 JS（main.js 必須在 body 最後） -->
+  <script type="module" src="main.js"></script>
+</body>
+</html>
