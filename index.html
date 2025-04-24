@@ -58,8 +58,8 @@
     }
     /* 公告按鈕樣式 */
     .refresh {
-      width: 36px;
-      height: 36px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
       background: rgba(255,255,255,0.2);
       display: flex;
@@ -73,6 +73,12 @@
       font-size: 20px; /* 圖示大小 */
     }
 
+    /* 新增：公告圖示尺寸 */
+    .refresh-icon {
+      width: 36px;   /* 或你希望的寬度 */
+      height: 36px;  /* 或你希望的高度 */
+    }
+    
     /* 時間區段改成 14px */
     .report-interval,
     .details-interval {
@@ -224,7 +230,9 @@
   <div class="header">
     <h1 class="title">臺海周邊海、空域動態</h1>
     <!-- 公告按鈕：點擊導向 about.html -->
-    <a class="refresh" href="about.html" title="公告">📢</a>
+    <a class="refresh" href="about.html" title="公告">
+      <img src="announcement.svg" alt="公告" class="refresh-icon" />
+    </a>
   </div>
 
   <!-- 今日摘要 -->
