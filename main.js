@@ -177,11 +177,22 @@ function initTrendChart(index, canvasId, rangeData) {
 
   const ctx = document.getElementById(canvasId).getContext('2d');
   const chart = new Chart(ctx, {
-    type: 'line', data: { labels, datasets },
+    type: 'line',
+    data: { labels, datasets },
     options: {
       plugins: { legend:{ display:false } },
-      scales: { y: { beginAtZero:true, stacked:true, ticks:{stepSize:1, callback:v=>Number.isInteger(v)?v:''} } },
-      responsive:true, maintainAspectRatio:false
+      scales: {
+        y: {
+          beginAtZero: true,
+          stacked: true,
+          ticks: {
+            stepSize: 1,
+            callback: v => Number.isInteger(v) ? v : ''
+          }
+        }
+      },
+      responsive: true,
+      maintainAspectRatio: false
     }
   });
 
@@ -189,13 +200,19 @@ function initTrendChart(index, canvasId, rangeData) {
     tab.addEventListener('click', () => {
       block.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
+
       if (tabIdx === 0) {
+        // 全部
         chart.data.datasets.forEach(ds => ds.hidden = false);
         chart.options.scales.y.stacked = true;
       } else {
-        chart.data.datasets.forEach((ds, dsIdx) => ds.hidden = dsIdx !== (tabIdx - 1));
+        // 個別
+        chart.data.datasets.forEach((ds, dsIdx) => {
+          ds.hidden = dsIdx !== (tabIdx - 1);
+        });
         chart.options.scales.y.stacked = false;
       }
+
       chart.update();
     });
   });
