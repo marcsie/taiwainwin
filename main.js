@@ -208,7 +208,7 @@ function initTrendChart(index, canvasId, rangeData) {
       } else {
         // 個別
         chart.data.datasets.forEach((ds, dsIdx) => {
-          ds.hidden = dsIdx !== (tabIdx - 1);
+          ds.hidden = dsIdx !== tabIdx;
         });
         chart.options.scales.y.stacked = false;
       }
