@@ -143,6 +143,7 @@ async function loadDetail(dateStr) {
   }
 }
 
+
 // ---------- 4. 通用趨勢圖函式 ----------
 function initTrendChart(index, canvasId, rangeData) {
   const block = document.querySelectorAll('.trend-chart')[index];
@@ -156,14 +157,12 @@ function initTrendChart(index, canvasId, rangeData) {
     return `${mm}/${dd}`;
   });
 
-  // 調整順序：軍機 → 軍艦 → 公務船 → 氣球
   const confs = [
-    { lbl:'軍機',  key:'共機數量',   border:'#1e90ff', bg:'rgba(30,144,255,0.6)' },
     { lbl:'軍艦',  key:'共艦數量',   border:'#ff3b30', bg:'rgba(255,59,48,0.6)' },
+    { lbl:'軍機',  key:'共機數量',   border:'#1e90ff', bg:'rgba(30,144,255,0.6)' },
     { lbl:'公務船',key:'公務船數量', border:'#ffcc00', bg:'rgba(255,204,0,0.6)' },
     { lbl:'氣球',  key:'氣球數量',   border:'#34c759', bg:'rgba(52,199,89,0.6)' }
   ];
-
   const datasets = confs.map((c, i) => ({
     label: c.lbl,
     data:  rangeData.map(d => d[c.key]),
