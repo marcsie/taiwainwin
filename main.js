@@ -83,10 +83,10 @@ function renderWeekList(rangeData) {
                 + d['共艦數量']
                 + d['公務船數量']
                 + d['氣球數量'];
-    row.innerHTML = `
+    row.innerHTML = 
       <div class="day-name">${name}</div>
       <div class="day-icon">⚠️</div>
-      <div class="day-count">${total}</div>`;
+      <div class="day-count">${total}</div>;
     row.addEventListener('click', () => loadDetail(d.date));
     wrap.appendChild(row);
   });
@@ -127,9 +127,9 @@ async function loadDetail(dateStr) {
       detailArr.forEach(item => {
         const row = document.createElement('div');
         row.className = 'detail-row';
-        row.innerHTML = `
+        row.innerHTML = 
           <div class="detail-time">項次：${item['項次']}　時間區段：${item['時間區段']}</div>
-          <div class="detail-info">${item['內容']}</div>`;
+          <div class="detail-info">${item['內容']}</div>;
         section.appendChild(row);
       });
     }
@@ -143,6 +143,7 @@ async function loadDetail(dateStr) {
   }
 }
 
+
 // ---------- 4. 通用趨勢圖函式 ----------
 function initTrendChart(index, canvasId, rangeData) {
   const block = document.querySelectorAll('.trend-chart')[index];
@@ -153,17 +154,15 @@ function initTrendChart(index, canvasId, rangeData) {
     dt.setDate(dt.getDate() - 1);
     const mm = String(dt.getMonth() + 1).padStart(2, '0');
     const dd = String(dt.getDate()).padStart(2, '0');
-    return `${mm}/${dd}`;
+    return ${mm}/${dd};
   });
 
-  // 調整順序：軍機 → 軍艦 → 公務船 → 氣球
   const confs = [
-    { lbl:'軍機',  key:'共機數量',   border:'#1e90ff', bg:'rgba(30,144,255,0.6)' },
     { lbl:'軍艦',  key:'共艦數量',   border:'#ff3b30', bg:'rgba(255,59,48,0.6)' },
+    { lbl:'軍機',  key:'共機數量',   border:'#1e90ff', bg:'rgba(30,144,255,0.6)' },
     { lbl:'公務船',key:'公務船數量', border:'#ffcc00', bg:'rgba(255,204,0,0.6)' },
     { lbl:'氣球',  key:'氣球數量',   border:'#34c759', bg:'rgba(52,199,89,0.6)' }
   ];
-
   const datasets = confs.map((c, i) => ({
     label: c.lbl,
     data:  rangeData.map(d => d[c.key]),
@@ -177,22 +176,11 @@ function initTrendChart(index, canvasId, rangeData) {
 
   const ctx = document.getElementById(canvasId).getContext('2d');
   const chart = new Chart(ctx, {
-    type: 'line',
-    data: { labels, datasets },
+    type: 'line', data: { labels, datasets },
     options: {
       plugins: { legend:{ display:false } },
-      scales: {
-        y: {
-          beginAtZero: true,
-          stacked: true,
-          ticks: {
-            stepSize: 1,
-            callback: v => Number.isInteger(v) ? v : ''
-          }
-        }
-      },
-      responsive: true,
-      maintainAspectRatio: false
+      scales: { y: { beginAtZero:true, stacked:true, ticks:{stepSize:1, callback:v=>Number.isInteger(v)?v:''} } },
+      responsive:true, maintainAspectRatio:false
     }
   });
 
@@ -200,19 +188,13 @@ function initTrendChart(index, canvasId, rangeData) {
     tab.addEventListener('click', () => {
       block.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
-
       if (tabIdx === 0) {
-        // 全部
         chart.data.datasets.forEach(ds => ds.hidden = false);
         chart.options.scales.y.stacked = true;
       } else {
-        // 個別
-        chart.data.datasets.forEach((ds, dsIdx) => {
-          ds.hidden = dsIdx !== tabIdx;
-        });
+        chart.data.datasets.forEach((ds, dsIdx) => ds.hidden = dsIdx !== (tabIdx - 1));
         chart.options.scales.y.stacked = false;
       }
-
       chart.update();
     });
   });
@@ -244,22 +226,24 @@ function renderTotalList7Days(rangeData) {
     dt.setDate(dt.getDate() - 1);
     const mm = String(dt.getMonth() + 1).padStart(2, '0');
     const dd = String(dt.getDate()).padStart(2, '0');
-    const name = `${mm}/${dd}`;
+    const name = ${mm}/${dd};
 
     const row = document.createElement('div');
     row.className = 'day-row';
-    row.innerHTML = `
+    row.innerHTML = 
       <div class="day-name">${name}</div>
       <div class="day-count">${total}</div>
       <div class="day-delta">${
         delta === null
           ? '-'
           : delta > 0
-            ? `<span class="delta-up">+${delta}</span>`
+            ? <span class="delta-up">+${delta}</span>
             : delta < 0
-              ? `<span class="delta-down">${delta}</span>`
+              ? <span class="delta-down">${delta}</span>
               : '0'
-      }</div>`;
+      }</div>;
     wrap.appendChild(row);
   });
 }
+
+
