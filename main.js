@@ -76,17 +76,20 @@ function renderWeekList(rangeData) {
   rangeData.slice().reverse().forEach((d, idx) => {
     const row = document.createElement('div');
     row.className = 'day-row';
-    const name = idx === 0 ? '今天'
-               : idx === 1 ? '昨日'
-               : d.date.slice(5).replace('-', '/');
+    const name = idx === 0
+      ? '今天'
+      : idx === 1
+        ? '昨日'
+        : d.date.slice(5).replace('-', '/');
     const total = d['共機數量']
                 + d['共艦數量']
                 + d['公務船數量']
                 + d['氣球數量'];
-    row.innerHTML = 
+    row.innerHTML = `
       <div class="day-name">${name}</div>
       <div class="day-icon">⚠️</div>
-      <div class="day-count">${total}</div>;
+      <div class="day-count">${total}</div>
+    `;
     row.addEventListener('click', () => loadDetail(d.date));
     wrap.appendChild(row);
   });
@@ -127,22 +130,23 @@ async function loadDetail(dateStr) {
       detailArr.forEach(item => {
         const row = document.createElement('div');
         row.className = 'detail-row';
-        row.innerHTML = 
-          <div class="detail-time">項次：${item['項次']}　時間區段：${item['時間區段']}</div>
-          <div class="detail-info">${item['內容']}</div>;
+        row.innerHTML = `
+          <div class="detail-time">
+            項次：${item['項次']}　時間區段：${item['時間區段']}
+          </div>
+          <div class="detail-info">${item['內容']}</div>
+        `;
         section.appendChild(row);
       });
     }
   } catch (err) {
     console.warn(err.message);
-    // 發生錯誤也顯示提示
     const empty = document.createElement('div');
     empty.className = 'detail-empty';
     empty.textContent = '此日期時段無詳細動態';
     section.appendChild(empty);
   }
 }
-
 
 // ---------- 4. 通用趨勢圖函式 ----------
 function initTrendChart(index, canvasId, rangeData) {
@@ -154,7 +158,7 @@ function initTrendChart(index, canvasId, rangeData) {
     dt.setDate(dt.getDate() - 1);
     const mm = String(dt.getMonth() + 1).padStart(2, '0');
     const dd = String(dt.getDate()).padStart(2, '0');
-    return ${mm}/${dd};
+    return `${mm}/${dd}`;
   });
 
   const confs = [
@@ -226,24 +230,23 @@ function renderTotalList7Days(rangeData) {
     dt.setDate(dt.getDate() - 1);
     const mm = String(dt.getMonth() + 1).padStart(2, '0');
     const dd = String(dt.getDate()).padStart(2, '0');
-    const name = ${mm}/${dd};
+    const name = `${mm}/${dd}`;
 
     const row = document.createElement('div');
     row.className = 'day-row';
-    row.innerHTML = 
+    row.innerHTML = `
       <div class="day-name">${name}</div>
       <div class="day-count">${total}</div>
       <div class="day-delta">${
         delta === null
           ? '-'
           : delta > 0
-            ? <span class="delta-up">+${delta}</span>
+            ? `<span class="delta-up">+${delta}</span>`
             : delta < 0
-              ? <span class="delta-down">${delta}</span>
+              ? `<span class="delta-down">${delta}</span>`
               : '0'
-      }</div>;
+      }</div>
+    `;
     wrap.appendChild(row);
   });
 }
-
-
