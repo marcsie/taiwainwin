@@ -50,8 +50,8 @@ function renderTodaySummary(today) {
   document.querySelector('.total-count').textContent     = '總架次 ' + total;
 
   const nums = [
-    today['共艦數量'],
     today['共機數量'],
+    today['共艦數量'],
     today['公務船數量'],
     today['氣球數量']
   ];
