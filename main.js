@@ -20,7 +20,14 @@ async function loadSummary() {
 // 一次渲染所有區塊
 function renderAll() {
   const allDates = Object.keys(summaryDataObj).sort();
-
+  // 加入GA追蹤用的click，這段是負責indexl對應的click動作
+    function trackAnnouncementClick() {
+    gtag('event', 'announcement_click', {  // 事件名稱
+      'event_category': 'User Interaction', // 事件類別
+      'event_label': 'Announcement Icon Click' // 事件標籤
+    });
+  }
+  
   // 1. 今日摘要 + 清單 + 詳細
   const rangeData = allDates.slice(-daysToShow)
     .map(d => ({ date: d, ...summaryDataObj[d] }));
